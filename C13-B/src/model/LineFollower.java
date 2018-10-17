@@ -5,20 +5,21 @@ import lejos.hardware.Sound;
 import lejos.hardware.motor.*;
 import lejos.hardware.port.*;
 import lejos.robotics.Color;
+import lejos.utility.Delay;
 import customrobot.library.*;
 
 public class LineFollower 
 { 
     static UnregulatedMotor motorA = new UnregulatedMotor(MotorPort.A);
-    static UnregulatedMotor motorB = new UnregulatedMotor(MotorPort.B);
-    static TouchSensor touch = new TouchSensor(SensorPort.S1);
-    static ColorSensor color = new ColorSensor(SensorPort.S3);
+    static UnregulatedMotor motorD = new UnregulatedMotor(MotorPort.D);
+    static TouchSensor touch = new TouchSensor(SensorPort.S3);
+    static ColorSensor color = new ColorSensor(SensorPort.S1);
     
     public static void main(String[] args)
     {
         float    colorValue;
         
-        System.out.println("Line Follower\n");
+        System.out.println("TTLine Follower\n");
         
         color.setRedMode();
         color.setFloodLight(Color.RED);
@@ -31,9 +32,18 @@ public class LineFollower
         
         Button.waitForAnyPress();
         
+        Delay.msDelay(2000);
+        float defaultValue = color.getRed();
+        defaultValue *= 3;
+        Delay.msDelay(2000);
+        
+        System.out.println("Default: " + defaultValue);
+        
         motorA.setPower(40);
-        motorB.setPower(40);
+        motorD.setPower(40);
        
+
+        
         // drive waiting for touch sensor or escape key to stop driving.
 
         while (!touch.isTouched() && Button.ESCAPE.isUp()) 
@@ -43,25 +53,29 @@ public class LineFollower
             Lcd.clear(7);
             Lcd.print(7,  "value=%.3f", colorValue);
 
-            if (colorValue > .100)
+            if (colorValue > defaultValue)
             {
-                motorA.setPower(40);
-                motorB.setPower(20);
+            	motorA.forward();
+                motorA.setPower(90);
+                motorD.backward();
+                motorD.setPower(0);
             }
             else
             {
-                motorA.setPower(20);    
-                motorB.setPower(40);
+            	motorA.backward();
+                motorA.setPower(60);
+                motorD.forward();
+                motorD.setPower(60);
             }
         }
        
         // stop motors with brakes on.
         motorA.stop();
-        motorB.stop();
+        motorD.stop();
 
         // free up resources.
         motorA.close();
-        motorB.close();
+        motorD.close();
         touch.close();
         color.close();
        
