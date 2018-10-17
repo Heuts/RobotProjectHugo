@@ -6,6 +6,7 @@ import lejos.hardware.Key;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.utility.Delay;
+import model.*;
 
 public class RobotLauncher {
 
@@ -36,18 +37,15 @@ public class RobotLauncher {
 		display.drawString("App 2 (DOWN)", 0, 4);
 		display.drawString("App 3 (RIGHT)", 0, 5);
 		display.drawString("Exit (ESCAPE)", 0, 7);
-//		Delay.msDelay(3000);
-//		waitForKey(Button.UP);
-//		waitForKey(Button.DOWN);
-//		display.clear();
-//		display.refresh();
 		Button.waitForAnyEvent();
-//		while (Button.ESCAPE.isUp()) {
 		if (Button.UP.isDown()) {
+			
 			display.clear();
 			display.refresh();
 			display.drawString("App 1", 0, 1);
+			new LineFollower();
 			Delay.msDelay(500);
+			
 		}
 		if (Button.DOWN.isDown()) {
 			display.clear();

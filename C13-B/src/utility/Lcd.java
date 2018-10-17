@@ -1,4 +1,4 @@
-package customrobot.library;
+package utility;
 
 import lejos.hardware.Brick;
 import lejos.hardware.BrickFinder;

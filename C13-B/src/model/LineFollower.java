@@ -6,7 +6,7 @@ import lejos.hardware.motor.*;
 import lejos.hardware.port.*;
 import lejos.robotics.Color;
 import lejos.utility.Delay;
-import customrobot.library.*;
+import utility.*;
 
 public class LineFollower 
 { 
@@ -15,7 +15,7 @@ public class LineFollower
     static TouchSensor touch = new TouchSensor(SensorPort.S3);
     static ColorSensor color = new ColorSensor(SensorPort.S1);
     
-    public static void main(String[] args)
+    public LineFollower()
     {
         float    colorValue;
         
