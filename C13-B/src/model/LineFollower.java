@@ -19,23 +19,24 @@ public class LineFollower
     {
         float    colorValue;
         
-        System.out.println("TTLine Follower\n");
+        System.out.println("Line Follower\n");
         
         color.setRedMode();
         color.setFloodLight(Color.RED);
         color.setFloodLight(true);
 
-        Button.LEDPattern(4);    // flash green led and 
+        Button.LEDPattern(2);    // flash green led and 
         Sound.beepSequenceUp();  // make sound when ready.
 
         System.out.println("Press any key to start");
         
         Button.waitForAnyPress();
         
-        Delay.msDelay(2000);
+        //TODO: bericht opnemen dat hij aan het callibreren is
+        Delay.msDelay(1000);
         float defaultValue = color.getRed();
         defaultValue *= 3;
-        Delay.msDelay(2000);
+        Delay.msDelay(1000);
         
         System.out.println("Default: " + defaultValue);
         
@@ -50,13 +51,15 @@ public class LineFollower
         {
             colorValue = color.getRed();
             
+            Button.LEDPattern(getRandom());
+            
             Lcd.clear(7);
             Lcd.print(7,  "value=%.3f", colorValue);
 
             if (colorValue > defaultValue)
             {
             	motorA.forward();
-                motorA.setPower(90);
+                motorA.setPower(80);
                 motorD.backward();
                 motorD.setPower(0);
             }
@@ -80,6 +83,10 @@ public class LineFollower
         color.close();
        
         Sound.beepSequence(); // we are done.
+    }
+    
+    public int getRandom() {
+    	return (int)(Math.random()*5);
     }
 }
    

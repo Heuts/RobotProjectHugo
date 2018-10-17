@@ -16,10 +16,7 @@ public class Lcd
     
 	// Private constructor means this class cannot be instantiated. All access is static.
 
-	private Lcd()
-	{
-		
-	}
+	private Lcd(){}
 
 	/**
 	 * Returns reference to underlying TextLCD object.

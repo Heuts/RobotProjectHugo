@@ -10,46 +10,50 @@ import model.*;
 
 public class RobotLauncher {
 
-	Brick brick;
+	final static String APP1 = "Line follower";
+	final static String APP2 = "Dansen";
+	private Brick brick;
+	private TextLCD display;
 
 	public RobotLauncher() {
 		super();
 		brick = LocalEV3.get();
-		// welcomeMessage();
-		choiceMenu();
+		display = brick.getTextLCD();
+		printWelcome();
+		printMenu();
 	}
 
-	// TODO: Gebruiker begroeten --> is waitforkey nodig?
-	private void welcomeMessage() {
-		TextLCD display = brick.getTextLCD();
-		display.drawString("Welkom", 0, 3);
-		display.drawString("Team Bravo!", 0, 4);
-		Delay.msDelay(3000); // aantal miliseconden dat bericht zichtbaar is
-	}
-
-	// TODO: methode(s) die verschillende applicaties oplijst en user vraagt welk
-	// programma gerunned moet worden en roept methode aan
-	private void choiceMenu() {
-		TextLCD display = brick.getTextLCD();
+	private void printWelcome() {
 		display.drawString("Welkom team Bravo!", 0, 0);
+	}
+
+	/*
+	 * verschillende applicaties oplijsten en user vragen welk
+	 * programma gerunned moet worden en roept methode aan
+	 */
+	private void printMenu() {
+		TextLCD display = brick.getTextLCD();
+		
 		display.drawString("Welke app?", 0, 2);
-		display.drawString("App 1 (UP)", 0, 3);
-		display.drawString("App 2 (DOWN)", 0, 4);
+		display.drawString(APP1+" (UP)", 0, 3);
+		display.drawString(APP2+" (DOWN)", 0, 4);
 		display.drawString("App 3 (RIGHT)", 0, 5);
 		display.drawString("Exit (ESCAPE)", 0, 7);
+		
 		Button.waitForAnyEvent();
 		if (Button.UP.isDown()) {
 			
 			display.clear();
 			display.refresh();
-			display.drawString("App 1", 0, 1);
-			new LineFollower();
+			display.drawString(APP1, 0, 1);
+			startApp1();
+			
 			Delay.msDelay(500);
 			
 		}
 		if (Button.DOWN.isDown()) {
 			display.clear();
-			display.drawString("App 2", 0, 1);
+			display.drawString(APP2, 0, 1);
 			Delay.msDelay(500);
 		}
 		if (Button.RIGHT.isDown()) {
@@ -64,12 +68,9 @@ public class RobotLauncher {
 		}
 	}
 
-//		Delay.msDelay(10000);
-//	}
-
 	// TODO: methode om app1 te starten
 	private void startApp1() {
-		// new BlackLine();
+		new LineFollower();
 	}
 
 	// TODO: methode om app2 te starten
