@@ -58,31 +58,98 @@ public class LineFollowerThree {
     	askUserInput();
     	Button.waitForAnyPress();
     	
-    	
-
+    	testOmschakeling();
+/*
+ * TESTEN HOE SNEL HIJ KAN OMSCHAKELEN TUSSEN FORWARD EN BACKWARD, NIET RIJDEN GEWOON SETTING
+ */
         
         endOfProgram();
 	}
 
-    private void followLine() {
+    private void testOmschakeling() {
+    	/*
+    	 * Methode dient voor testen uitvoeren methodes
+    	 */
     	
-    	if(detectLinePosition())
-    	//rechtdoor
+    	long startTime = 0;
+    	long stopTime = 0;
+    	long elapsedTime = 0;
+    	  
+    	startTime = System.currentTimeMillis();
+    	  
+		for(int i = 0; i < 100; i++) {
+			motorL.forward();
+			motorL.backward();
+		}
+		
+		stopTime = System.currentTimeMillis();
+		elapsedTime = stopTime - startTime;
+
+		Lcd.print(5, "Time: " + elapsedTime);
+		Delay.msDelay(3000);
+		
+	}
+
+	private void followLine() {
+    	
 		motorL.forward();
-		motorR.backward();
+		motorR.forward();
 		motorL.setPower(30);
 		motorR.setPower(30);
+    	
+		while (Button.ESCAPE.isUp()) {
+	    	//10% marge nog te testen!! TODO TODO TODO
+	    	float positionL = detectPosition(colorSensorL);
+	    	
+	    	if(positionL < straightLinePosition[0] * 1.1) {
+	    		if(positionL > straightLinePosition[0] * 0.75) {
+	        		motorL.forward();
+	        		motorL.setPower(15);
+	    		} else if(positionL > straightLinePosition[0] * 0.5) {
+	        		motorL.forward();
+	        		motorL.setPower(0);
+	    		} else if(positionL > straightLinePosition[0] * 0.25) {
+	        		motorL.backward();
+	        		motorL.setPower(15);
+	    		} else {
+	        		motorL.backward();
+	        		motorL.setPower(15);    			
+	    		}
+	    	}
+	    	
+	    	float positionR = detectPosition(colorSensorR);
+	    	
+	    	if(positionR < straightLinePosition[0] * 1.1) {
+	    		if(positionR > straightLinePosition[0] * 0.75) {
+	        		motorR.forward();
+	        		motorR.setPower(15);
+	    		} else if(positionR > straightLinePosition[0] * 0.5) {
+	        		motorR.forward();
+	        		motorR.setPower(0);
+	    		} else if(positionR > straightLinePosition[0] * 0.25) {
+	        		motorR.backward();
+	        		motorR.setPower(15);
+	    		} else {
+	        		motorR.backward();
+	        		motorR.setPower(15);    			
+	    		}
+	    	}
+		}
 		
-		
+    	//voor testing purposes
 		Delay.msDelay(8000);
     	motorL.stop();
     	motorR.stop();
     }
 
-    private float[] detectLinePosition() {
-    	float[] currentPosition = new float[]{colorSensorL.getRed(), colorSensorR.getRed()};
-    	float[] straightLinePosition = new float
-    	return null;
+//    private float[] detectLinePosition() {
+//    	float[] currentPosition = new float[]{colorSensorL.getRed(), colorSensorR.getRed()};
+//    	
+//    	return null;
+//	}
+
+	private float detectPosition(ColorSensor colorSensor) {
+		return colorSensor.getRed();
 	}
 
 	private void endOfProgram() {
