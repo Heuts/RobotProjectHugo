@@ -8,7 +8,7 @@ import lejos.utility.Delay;
 import customrobot.library.ColorSensor;
 import customrobot.library.Lcd;
 
-public class ColorDemo
+public class ColorDemo2
 {
     public static void main(String[] args)
     {
@@ -24,16 +24,6 @@ public class ColorDemo
         Button.waitForAnyPress();
         Button.LEDPattern(0);
         
-        // run until escape button pressed.
-        
-        while (Button.ESCAPE.isUp())
-        {
-            Lcd.clear(4);
-            Lcd.print(4, "ambient=%.3f", color.getAmbient());
-            Delay.msDelay(250);
-        }
-
-        Delay.msDelay(1000);
 
         color.setRedMode();
         color.setFloodLight(Color.RED);
@@ -41,6 +31,10 @@ public class ColorDemo
         color2.setRedMode();
         color2.setFloodLight(Color.RED);
         color2.setFloodLight(true);
+        
+        for(int i = 0; i < 10; i++) {
+        	System.out.println(i);
+        }
         
         while (Button.ESCAPE.isUp())
         {
@@ -51,32 +45,6 @@ public class ColorDemo
         }
 
         Delay.msDelay(1000);
-
-        color.setRGBMode();
-        color.setFloodLight(Color.WHITE);
-        
-        Color rgb;
-        
-        while (Button.ESCAPE.isUp())
-        {
-            rgb = color.getColor();
-            
-            Lcd.clear(6);
-            Lcd.print(6, "r=%d g=%d b=%d", rgb.getRed(), rgb.getGreen(), rgb.getBlue());
-            Delay.msDelay(250);
-        }
-
-        Delay.msDelay(1000);
-
-        color.setColorIdMode();
-        color.setFloodLight(false);
-        
-        while (Button.ESCAPE.isUp())
-        {
-            Lcd.clear(7);
-            Lcd.print(7, "id=%s", ColorSensor.colorName(color.getColorID()));
-            Delay.msDelay(250);
-        }
 
         // free up resources.
         color.close();
