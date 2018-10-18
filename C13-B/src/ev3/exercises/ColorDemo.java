@@ -12,6 +12,11 @@ public class ColorDemo
 {
     public static void main(String[] args)
     {
+    	//red = 860
+    	//red2 = 760
+    	
+    	
+    	
         ColorSensor    color = new ColorSensor(SensorPort.S1);
         ColorSensor color2 = new ColorSensor(SensorPort.S2);
 

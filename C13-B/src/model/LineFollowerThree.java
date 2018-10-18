@@ -53,12 +53,16 @@ public class LineFollowerThree {
     	
     	Lcd.print(2, "Sensors ready");
     	
-//    	startCalibration();
+    	startCalibration();
 //    	printCalibration();
     	askUserInput();
     	Button.waitForAnyPress();
     	
-    	testOmschakeling();
+//    	testOmschakeling();
+    	followLine();
+    	
+    	askUserInput();
+    	Button.waitForAnyPress();
 /*
  * TESTEN HOE SNEL HIJ KAN OMSCHAKELEN TUSSEN FORWARD EN BACKWARD, NIET RIJDEN GEWOON SETTING
  */
@@ -92,52 +96,70 @@ public class LineFollowerThree {
 
 	private void followLine() {
     	
+		int power = 40;
+		
 		motorL.forward();
 		motorR.forward();
-		motorL.setPower(30);
-		motorR.setPower(30);
+		motorL.setPower(power);
+		motorR.setPower(power);
     	
 		while (Button.ESCAPE.isUp()) {
 	    	//10% marge nog te testen!! TODO TODO TODO
 	    	float positionL = detectPosition(colorSensorL);
 	    	
-	    	if(positionL < straightLinePosition[0] * 1.1) {
+	    	if(positionL < straightLinePosition[0] * 1.05) {
+	    		motorR.forward();
+	    		motorR.setPower(power);
+	    		
 	    		if(positionL > straightLinePosition[0] * 0.75) {
 	        		motorL.forward();
-	        		motorL.setPower(15);
+	        		motorL.setPower(power/8);
+		    		motorR.forward();
+		    		motorR.setPower((int) (power*1.6));
 	    		} else if(positionL > straightLinePosition[0] * 0.5) {
 	        		motorL.forward();
 	        		motorL.setPower(0);
+		    		motorR.forward();
+		    		motorR.setPower((int) (power*1.9));
 	    		} else if(positionL > straightLinePosition[0] * 0.25) {
 	        		motorL.backward();
-	        		motorL.setPower(15);
+	        		motorL.setPower(power);
 	    		} else {
 	        		motorL.backward();
-	        		motorL.setPower(15);    			
+	        		motorL.setPower(power);
+	        		motorR.forward();
+	        		motorR.setPower(power*2);
 	    		}
 	    	}
 	    	
 	    	float positionR = detectPosition(colorSensorR);
 	    	
-	    	if(positionR < straightLinePosition[0] * 1.1) {
+	    	if(positionR < straightLinePosition[0] * 1.05) {
+	    		motorL.forward();
+	    		motorL.setPower(power);
 	    		if(positionR > straightLinePosition[0] * 0.75) {
 	        		motorR.forward();
-	        		motorR.setPower(15);
+	        		motorR.setPower(power/8);
+	        		motorL.forward();
+	        		motorL.setPower((int) (power*1.6));
 	    		} else if(positionR > straightLinePosition[0] * 0.5) {
 	        		motorR.forward();
 	        		motorR.setPower(0);
+	        		motorL.forward();
+	        		motorL.setPower((int) (power*1.9));
 	    		} else if(positionR > straightLinePosition[0] * 0.25) {
 	        		motorR.backward();
-	        		motorR.setPower(15);
+	        		motorR.setPower(power);
 	    		} else {
 	        		motorR.backward();
-	        		motorR.setPower(15);    			
+	        		motorR.setPower(power);
+	        		motorL.forward();
+	        		motorL.setPower((int) (power*2));
 	    		}
 	    	}
 		}
 		
     	//voor testing purposes
-		Delay.msDelay(8000);
     	motorL.stop();
     	motorR.stop();
     }
@@ -257,7 +279,7 @@ public class LineFollowerThree {
     	askUserInput();
         Lcd.print(3, "Press ENTER to start calibrate");
         Button.waitForAnyPress();
-        calibrateFinish();
+//        calibrateFinish();
 //        calibrateLine();
 //        calibrateBackground();
         calibratePosition();
