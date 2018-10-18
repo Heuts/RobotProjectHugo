@@ -113,22 +113,22 @@ public class LineFollowerThree {
 	    		
 	    		if(positionL > straightLinePosition[0] * 0.75) {
 	        		motorL.forward();
-	        		motorL.setPower(power/8);
-		    		motorR.forward();
-		    		motorR.setPower((int) (power*1.6));
-	    		} else if(positionL > straightLinePosition[0] * 0.5) {
-	        		motorL.forward();
 	        		motorL.setPower(0);
+	        		
 		    		motorR.forward();
-		    		motorR.setPower((int) (power*1.9));
-	    		} else if(positionL > straightLinePosition[0] * 0.25) {
+		    		motorR.setPower((int) (power*1.5));
+	    		} else if(positionL > straightLinePosition[0] * 0.5) {
 	        		motorL.backward();
 	        		motorL.setPower(power);
+	        		
+		    		motorR.forward();
+		    		motorR.setPower((int) (power*2));
 	    		} else {
 	        		motorL.backward();
-	        		motorL.setPower(power);
+	        		motorL.setPower((int) (power*2));
+	        		
 	        		motorR.forward();
-	        		motorR.setPower(power*2);
+	        		motorR.setPower((int) (power*2));
 	    		}
 	    	}
 	    	
@@ -139,20 +139,20 @@ public class LineFollowerThree {
 	    		motorL.setPower(power);
 	    		if(positionR > straightLinePosition[0] * 0.75) {
 	        		motorR.forward();
-	        		motorR.setPower(power/8);
-	        		motorL.forward();
-	        		motorL.setPower((int) (power*1.6));
-	    		} else if(positionR > straightLinePosition[0] * 0.5) {
-	        		motorR.forward();
 	        		motorR.setPower(0);
+	        		
 	        		motorL.forward();
-	        		motorL.setPower((int) (power*1.9));
-	    		} else if(positionR > straightLinePosition[0] * 0.25) {
+	        		motorL.setPower((int) (power*1.5));
+	    		} else if(positionR > straightLinePosition[0] * 0.5) {
 	        		motorR.backward();
 	        		motorR.setPower(power);
+	        		
+	        		motorL.forward();
+	        		motorL.setPower((int) (power*2));
 	    		} else {
 	        		motorR.backward();
-	        		motorR.setPower(power);
+	        		motorR.setPower((int) (power*2));
+	        		
 	        		motorL.forward();
 	        		motorL.setPower((int) (power*2));
 	    		}
