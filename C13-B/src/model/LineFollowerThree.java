@@ -20,12 +20,13 @@ public class LineFollowerThree {
     private UnregulatedMotor motorR;
     private ColorSensor colorSensorL;
     private ColorSensor colorSensorR;
-    private double colorFinishL;
-    private double colorFinishR;
-    private double colorLineL;
-    private double colorLineR;
-    private double colorBackgroundL;
-    private double colorBackgroundR;
+    private float colorFinishL;
+    private float colorFinishR;
+    private float colorLineL;
+    private float colorLineR;
+    private float colorBackgroundL;
+    private float colorBackgroundR;
+    private float[] straightLinePosition;
     private final static int CALIBRATION_CYCLES = 4;
     
     public static void main(String[] args)
@@ -65,7 +66,7 @@ public class LineFollowerThree {
 
     private void followLine() {
     	
-    	if()
+    	if(detectLinePosition())
     	//rechtdoor
 		motorL.forward();
 		motorR.backward();
@@ -78,7 +79,13 @@ public class LineFollowerThree {
     	motorR.stop();
     }
 
-    private void endOfProgram() {
+    private float[] detectLinePosition() {
+    	float[] currentPosition = new float[]{colorSensorL.getRed(), colorSensorR.getRed()};
+    	float[] straightLinePosition = new float
+    	return null;
+	}
+
+	private void endOfProgram() {
     	closeSensors();
         Lcd.print(6, "FINAL");
         askUserInput();
@@ -184,8 +191,21 @@ public class LineFollowerThree {
         Lcd.print(3, "Press ENTER to start calibrate");
         Button.waitForAnyPress();
         calibrateFinish();
-        calibrateLine();
-        calibrateBackground();
+//        calibrateLine();
+//        calibrateBackground();
+        calibratePosition();
+	}
+	
+	private void calibratePosition() {
+        askUserInput();
+        Lcd.clear();
+        Lcd.print(4, "Place bot on trajectory");
+        Lcd.print(5, "Press ENTER to calibrate");
+        Button.waitForAnyPress();
+        Lcd.print(6, "Calibrating..");
+        straightLinePosition = new float[] {getAverageRedValue(colorSensorL), getAverageRedValue(colorSensorR)};
+        Lcd.print(7, "SUCCES!");
+        Delay.msDelay(250);
 	}
 	
 	private void calibrateFinish() {
@@ -227,13 +247,13 @@ public class LineFollowerThree {
         Delay.msDelay(250);
 	}
 	
-	private double getAverageRedValue(ColorSensor colorSensor) {
+	private float getAverageRedValue(ColorSensor colorSensor) {
 		float sum = 0;
         for(int i = 0; i < CALIBRATION_CYCLES; i++) {
         	Delay.msDelay(250);
         	sum += colorSensor.getRed();
         }
-		return (double) sum/CALIBRATION_CYCLES;
+        return sum/CALIBRATION_CYCLES;
 	}
 
 	private void askUserInput() {
