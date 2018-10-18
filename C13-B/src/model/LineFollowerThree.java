@@ -8,6 +8,7 @@ import lejos.robotics.Color;
 import lejos.utility.Delay;
 import customrobot.library.*;
 
+//127 is max vooruit, 128 is max achteruit
 //TODO: refactoring: arrays gebruiken zodat je één motor hebt en één sensor en één finish, etc.
 //TODO: maak calibratiemethodes generieker, teveel herhaling => calibratie class?
 //TODO: berichten op lcd uitlijnen
@@ -49,27 +50,56 @@ public class LineFollowerThree {
     	prepareSensor(colorSensorL);
     	prepareSensor(colorSensorR);
     	
+    	Lcd.print(2, "Sensors ready");
+    	
 //    	startCalibration();
 //    	printCalibration();
     	askUserInput();
     	Button.waitForAnyPress();
     	
-    	runEngine();
     	
-    	closeSensors();
 
-    
+        
+        endOfProgram();
 	}
 
-    
-    
+    private void followLine() {
+    	
+    	if()
+    	//rechtdoor
+		motorL.forward();
+		motorR.backward();
+		motorL.setPower(30);
+		motorR.setPower(30);
+		
+		
+		Delay.msDelay(8000);
+    	motorL.stop();
+    	motorR.stop();
+    }
 
-    private void closeSensors() {
+    private void endOfProgram() {
+    	closeSensors();
+        Lcd.print(6, "FINAL");
+        askUserInput();
+    	Button.waitForAnyPress();
+	}
+
+	private void donut() {
+		motorL.forward();
+		motorR.backward();
+		motorL.setPower(127);
+		motorR.setPower(127);
+		Delay.msDelay(5000);
+	}
+
+	private void closeSensors() {
         motorL.close();
         motorR.close();
     	colorSensorL.close();
     	colorSensorR.close();
-		
+        Lcd.clear();
+        Lcd.print(5, "in close");
 	}
 
 	private void runEngine() {
@@ -80,17 +110,38 @@ public class LineFollowerThree {
 //        motorR.setPower(150);
 //        Delay.msDelay(4000);
 
-        for(int i = 0; i<200; i++) {
+        for(int i = 120; i<140; i++) {
 
         	motorL.setPower(i);
             Lcd.clear();
             Lcd.print(5, "Snelheid: " + i);
-            Delay.msDelay(80);
+            Delay.msDelay(800);
         	
         }
+        Lcd.clear();
+        Lcd.print(5, "ENDED");
         
-        
-        
+	}
+	
+	private void forwardBackward() {
+		
+		//voorwaarts rijden
+		motorL.forward();
+		motorR.forward();
+		motorL.setPower(127);
+		motorR.setPower(127);
+		Delay.msDelay(3000);
+		
+		//achterwaards rijden
+		motorL.forward();
+		motorR.forward();
+		motorL.setPower(128);
+		motorR.setPower(128);
+		Delay.msDelay(3000);
+		
+		motorL.stop();
+		motorR.stop();
+		
 	}
 
 	/*
