@@ -8,19 +8,24 @@ import lejos.robotics.Color;
 import lejos.utility.Delay;
 import customrobot.library.*;
 
-
+//TODO: refactoring: arrays gebruiken zodat je één motor hebt en één sensor en één finish, etc.
+//TODO: maak calibratiemethodes generieker, teveel herhaling => calibratie class?
+//TODO: berichten op lcd uitlijnen
 public class LineFollowerThree {
-	
 	/*
 	 * The bot has a left and right track with each one motor
 	 */
     private UnregulatedMotor motorL;
     private UnregulatedMotor motorR;
-    private ColorSensor colorSensorL = new ColorSensor(SensorPort.S1);
-    private ColorSensor colorSensorR = new ColorSensor(SensorPort.S4);
-    private double colorFinish;
-    private double colorLine;
-    private double colorBackground;
+    private ColorSensor colorSensorL;
+    private ColorSensor colorSensorR;
+    private double colorFinishL;
+    private double colorFinishR;
+    private double colorLineL;
+    private double colorLineR;
+    private double colorBackgroundL;
+    private double colorBackgroundR;
+    private final static int CALIBRATION_CYCLES = 4;
     
     public static void main(String[] args)
     {
@@ -39,18 +44,73 @@ public class LineFollowerThree {
     	setColorSensorL(leftColorSensor);
     	setColorSensorR(rightColorSensor);
     	
-    	System.out.println("Line Follower V3\n");
+    	Lcd.print(1, "Line Follower V3");
     	
     	prepareSensor(colorSensorL);
     	prepareSensor(colorSensorR);
     	
-    	startCalibration();
+//    	startCalibration();
+//    	printCalibration();
+    	askUserInput();
+    	Button.waitForAnyPress();
+    	
+    	runEngine();
+    	
+    	closeSensors();
+
+    
 	}
 
+    
+    
+
+    private void closeSensors() {
+        motorL.close();
+        motorR.close();
+    	colorSensorL.close();
+    	colorSensorR.close();
+		
+	}
+
+	private void runEngine() {
+
+    	motorL.forward();
+//        motorR.forward();
+//        motorL.setPower(150);
+//        motorR.setPower(150);
+//        Delay.msDelay(4000);
+
+        for(int i = 0; i<200; i++) {
+
+        	motorL.setPower(i);
+            Lcd.clear();
+            Lcd.print(5, "Snelheid: " + i);
+            Delay.msDelay(80);
+        	
+        }
+        
+        
+        
+	}
+
+	/*
+     * CALLIBRATIE DEEL HIERONDER
+     */
+    
+	private void printCalibration() {
+        Lcd.clear();
+        Lcd.print(1, "Calibration results:");
+        Lcd.print(2, "finish L: %.3f", colorFinishL);
+        Lcd.print(3, "finish R: %.3f", colorFinishR);
+        Lcd.print(4, "line L: %.3f", colorLineL);
+        Lcd.print(5, "line R: %.3f", colorLineR);
+        Lcd.print(6, "background L: %.3f", colorBackgroundL);
+        Lcd.print(7, "background R: %.3f", colorBackgroundR);
+	}
 
 	private void setColorSensorR(String rightColorSensor) {
 		// TODO S4 vervangen door parameter
-		colorSensorR = new ColorSensor(SensorPort.S4);
+		colorSensorR = new ColorSensor(SensorPort.S2);
 	}
 
 	private void setColorSensorL(String leftColorSensor) {
@@ -70,7 +130,7 @@ public class LineFollowerThree {
 
 	private void startCalibration() {
     	askUserInput();
-        System.out.println("Press ENTER to start calibrate");
+        Lcd.print(3, "Press ENTER to start calibrate");
         Button.waitForAnyPress();
         calibrateFinish();
         calibrateLine();
@@ -79,29 +139,50 @@ public class LineFollowerThree {
 	
 	private void calibrateFinish() {
         askUserInput();
-        System.out.println("Place bot on finishline");
-        System.out.println("Press ENTER to calibrate");
+        Lcd.clear();
+        Lcd.print(4, "Place bot on finishline");
+        Lcd.print(5, "Press ENTER to calibrate");
         Button.waitForAnyPress();
-        colorFinish = getAverageRedValue();
-	}
-	
-	private double getAverageRedValue() {
-		float defaultValue = color.getRed();
-		return 0;
+        Lcd.print(6, "Calibrating..");
+        colorFinishL = getAverageRedValue(colorSensorL);
+        colorFinishR = getAverageRedValue(colorSensorR);
+        Lcd.print(7, "SUCCES!");
+        Delay.msDelay(250);
 	}
 
 	private void calibrateLine() {
         askUserInput();
-        System.out.println("Place bot on line");
-        System.out.println("Press ENTER to calibrate");
+        Lcd.clear();
+        Lcd.print(4, "Place bot on racing line");
+        Lcd.print(5, "Press ENTER to calibrate");
         Button.waitForAnyPress();
+        Lcd.print(6, "Calibrating..");
+        colorLineL = getAverageRedValue(colorSensorL);
+        colorLineR = getAverageRedValue(colorSensorR);
+        Lcd.print(7, "SUCCES!");
+        Delay.msDelay(250);
 	}
 	
 	private void calibrateBackground() {
         askUserInput();
-        System.out.println("Place bot next to line");
-        System.out.println("Press ENTER to calibrate");
+        Lcd.clear();
+        Lcd.print(4, "Place bot on background");
+        Lcd.print(5, "Press ENTER to calibrate");
         Button.waitForAnyPress();
+        Lcd.print(6, "Calibrating..");
+        colorBackgroundL = getAverageRedValue(colorSensorL);
+        colorBackgroundR = getAverageRedValue(colorSensorR);
+        Lcd.print(7, "SUCCES!");
+        Delay.msDelay(250);
+	}
+	
+	private double getAverageRedValue(ColorSensor colorSensor) {
+		float sum = 0;
+        for(int i = 0; i < CALIBRATION_CYCLES; i++) {
+        	Delay.msDelay(250);
+        	sum += colorSensor.getRed();
+        }
+		return (double) sum/CALIBRATION_CYCLES;
 	}
 
 	private void askUserInput() {
