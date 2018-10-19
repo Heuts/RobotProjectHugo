@@ -96,8 +96,6 @@ public class LineFollowerThree {
 
 	private void followLine() {
     	
-		long startTime;
-		
 		int power = 50;
 		
 		motorL.forward();
@@ -112,6 +110,7 @@ public class LineFollowerThree {
 	    	Lcd.print(4, "Links: %.3f", positionL);
 	    	
 	    	//als hij naar rechts afwijkt
+	    	//draai links licht
 	    	if(positionL < straightLinePosition[0]) {
 	    		motorR.forward();
 	    		motorR.setPower(power);
@@ -119,11 +118,12 @@ public class LineFollowerThree {
 	    		motorL.setPower(power/2);
 	    	}
 	    	
-	    	startTime = System.currentTimeMillis();
+	    	//als linkersensor boven zwarte lijn is
+	    	//blijf blijf naar links draaien
 	    	while(positionL < 0.3 && Button.ESCAPE.isUp()) {
 	    		positionL = detectPosition(colorSensorL);
 	    		motorR.forward();
-	    		motorR.setPower(power+15);
+	    		motorR.setPower(power+15); //assymetrisch zwiepen
 	    		motorL.backward();
 	    		motorL.setPower(power);
 	    	}
@@ -131,6 +131,8 @@ public class LineFollowerThree {
 	    	float positionR = detectPosition(colorSensorR);
 	    	Lcd.print(5, "Rechts: %.3f", positionR);
 	    	
+	    	//als rechtersensor grijzer wordt
+	    	//draai naar links
 	    	if(positionR < straightLinePosition[1]) {
 	    		motorL.forward();
 	    		motorL.setPower(power + 10);
@@ -138,15 +140,18 @@ public class LineFollowerThree {
 	    		motorR.setPower(power/2);
 	    		
 	    	}
-	    	startTime = System.currentTimeMillis();
+
+	    	//als rechtersensor boven zwart is
+	    	//blijf naar links draaien
 	    	while(positionR < 0.3  && Button.ESCAPE.isUp()) {
 	    		positionR = detectPosition(colorSensorR);
 	    		motorL.forward();
-	    		motorL.setPower(power+20);
+	    		motorL.setPower(power+20+20); //sterker om te zwakkere motor te corrigeren
 	    		motorR.backward();
-	    		motorR.setPower(power+20);
+	    		motorR.setPower(power+20); //sterker om zwakkere motor te corrigeren
 	    	}
 	    	
+	    	//rij rechtdoor als beide sensors wit genoeg zijn
 	    	if(positionL > 0.5 && positionR > 0.5) {
 	    		motorL.forward();
 	    		motorL.setPower(power+10);
@@ -157,7 +162,7 @@ public class LineFollowerThree {
 	    	
 		}
 		
-    	//voor testing purposes
+    	//stop motors -- is buiten de while loop die stopt bij escape
     	motorL.stop();
     	motorR.stop();
     }
