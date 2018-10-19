@@ -20,13 +20,8 @@ public class LineFollowerThree {
     private UnregulatedMotor motorR;
     private ColorSensor colorSensorL;
     private ColorSensor colorSensorR;
-    private float colorFinishL;
-    private float colorFinishR;
-    private float colorLineL;
-    private float colorLineR;
-    private float colorBackgroundL;
-    private float colorBackgroundR;
-    private float[] straightLinePosition;
+    private int[][] colorFinish;
+    private int[][] colorBackground;
     private final static int CALIBRATION_CYCLES = 4;
     
     public static void main(String[] args)
@@ -54,45 +49,18 @@ public class LineFollowerThree {
     	Lcd.print(2, "Sensors ready");
     	
     	startCalibration();
-//    	printCalibration();
+    	printCalibration();
     	askUserInput();
     	Button.waitForAnyPress();
     	
-//    	testOmschakeling();
-    	followLine();
+//    	followLine();
     	
     	askUserInput();
     	Button.waitForAnyPress();
-/*
- * TESTEN HOE SNEL HIJ KAN OMSCHAKELEN TUSSEN FORWARD EN BACKWARD, NIET RIJDEN GEWOON SETTING
- */
         
         endOfProgram();
 	}
 
-    private void testOmschakeling() {
-    	/*
-    	 * Methode dient voor testen uitvoeren methodes
-    	 */
-    	
-    	long startTime = 0;
-    	long stopTime = 0;
-    	long elapsedTime = 0;
-    	  
-    	startTime = System.currentTimeMillis();
-    	  
-		for(int i = 0; i < 100; i++) {
-			motorL.forward();
-			motorL.backward();
-		}
-		
-		stopTime = System.currentTimeMillis();
-		elapsedTime = stopTime - startTime;
-
-		Lcd.print(5, "Time: " + elapsedTime);
-		Delay.msDelay(3000);
-		
-	}
 
 	private void followLine() {
     	
@@ -106,6 +74,9 @@ public class LineFollowerThree {
 		while (Button.ESCAPE.isUp()) {
 	    	float positionL = detectPosition(colorSensorL);
 	    	int rechthoek;
+	    	
+	    	if(isFinish())
+	    		break;
 	    	
 	    	Lcd.print(4, "Links: %.3f", positionL);
 	    	
@@ -167,11 +138,11 @@ public class LineFollowerThree {
     	motorR.stop();
     }
 
-//    private float[] detectLinePosition() {
-//    	float[] currentPosition = new float[]{colorSensorL.getRed(), colorSensorR.getRed()};
-//    	
-//    	return null;
-//	}
+
+	private boolean isFinish() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 	private float detectPosition(ColorSensor colorSensor) {
 		return colorSensor.getRed();
@@ -184,14 +155,6 @@ public class LineFollowerThree {
     	Button.waitForAnyPress();
 	}
 
-	private void donut() {
-		motorL.forward();
-		motorR.backward();
-		motorL.setPower(127);
-		motorR.setPower(127);
-		Delay.msDelay(5000);
-	}
-
 	private void closeSensors() {
         motorL.close();
         motorR.close();
@@ -201,47 +164,6 @@ public class LineFollowerThree {
         Lcd.print(5, "in close");
 	}
 
-	private void runEngine() {
-
-    	motorL.forward();
-//        motorR.forward();
-//        motorL.setPower(150);
-//        motorR.setPower(150);
-//        Delay.msDelay(4000);
-
-        for(int i = 120; i<140; i++) {
-
-        	motorL.setPower(i);
-            Lcd.clear();
-            Lcd.print(5, "Snelheid: " + i);
-            Delay.msDelay(800);
-        	
-        }
-        Lcd.clear();
-        Lcd.print(5, "ENDED");
-        
-	}
-	
-	private void forwardBackward() {
-		
-		//voorwaarts rijden
-		motorL.forward();
-		motorR.forward();
-		motorL.setPower(127);
-		motorR.setPower(127);
-		Delay.msDelay(3000);
-		
-		//achterwaards rijden
-		motorL.forward();
-		motorR.forward();
-		motorL.setPower(128);
-		motorR.setPower(128);
-		Delay.msDelay(3000);
-		
-		motorL.stop();
-		motorR.stop();
-		
-	}
 
 	/*
      * CALLIBRATIE DEEL HIERONDER
@@ -250,12 +172,10 @@ public class LineFollowerThree {
 	private void printCalibration() {
         Lcd.clear();
         Lcd.print(1, "Calibration results:");
-        Lcd.print(2, "finish L: %.3f", colorFinishL);
-        Lcd.print(3, "finish R: %.3f", colorFinishR);
-        Lcd.print(4, "line L: %.3f", colorLineL);
-        Lcd.print(5, "line R: %.3f", colorLineR);
-        Lcd.print(6, "background L: %.3f", colorBackgroundL);
-        Lcd.print(7, "background R: %.3f", colorBackgroundR);
+        Lcd.print(2, "FL: %d %d %d", colorFinish[0][0], colorFinish[0][1], colorFinish[0][2]);
+        Lcd.print(3, "FR: %d %d %d",  colorFinish[1][0], colorFinish[1][1], colorFinish[1][2]);
+        Lcd.print(6, "BL: %d %d %d", colorBackground[0][0], colorBackground[0][1], colorBackground[0][2]);
+        Lcd.print(7, "BR: %d %d %d", colorBackground[1][0], colorBackground[1][1], colorBackground[1][2]);
 	}
 
 	private void setColorSensorR(String rightColorSensor) {
@@ -282,20 +202,18 @@ public class LineFollowerThree {
     	askUserInput();
         Lcd.print(3, "Press ENTER to start calibrate");
         Button.waitForAnyPress();
-//        calibrateFinish();
-//        calibrateLine();
-//        calibrateBackground();
-        calibratePosition();
+        calibrateFinish();
+        calibrateBackground();
 	}
 	
-	private void calibratePosition() {
+	private void calibrateBackground() {
         askUserInput();
         Lcd.clear();
-        Lcd.print(4, "Place bot on trajectory");
+        Lcd.print(4, "Place bot on background");
         Lcd.print(5, "Press ENTER to calibrate");
         Button.waitForAnyPress();
         Lcd.print(6, "Calibrating..");
-        straightLinePosition = new float[] {getAverageRedValue(colorSensorL), getAverageRedValue(colorSensorR)};
+        colorBackground = new int[][]{getAverageRGB(colorSensorL), getAverageRGB(colorSensorR)};
         Lcd.print(7, "SUCCES!");
         Delay.msDelay(250);
 	}
@@ -307,45 +225,31 @@ public class LineFollowerThree {
         Lcd.print(5, "Press ENTER to calibrate");
         Button.waitForAnyPress();
         Lcd.print(6, "Calibrating..");
-        colorFinishL = getAverageRedValue(colorSensorL);
-        colorFinishR = getAverageRedValue(colorSensorR);
+        colorFinish = new int[][] {getAverageRGB(colorSensorL), getAverageRGB(colorSensorR)};
         Lcd.print(7, "SUCCES!");
         Delay.msDelay(250);
 	}
 
-	private void calibrateLine() {
-        askUserInput();
-        Lcd.clear();
-        Lcd.print(4, "Place bot on racing line");
-        Lcd.print(5, "Press ENTER to calibrate");
-        Button.waitForAnyPress();
-        Lcd.print(6, "Calibrating..");
-        colorLineL = getAverageRedValue(colorSensorL);
-        colorLineR = getAverageRedValue(colorSensorR);
-        Lcd.print(7, "SUCCES!");
-        Delay.msDelay(250);
-	}
 	
-	private void calibrateBackground() {
-        askUserInput();
-        Lcd.clear();
-        Lcd.print(4, "Place bot on background");
-        Lcd.print(5, "Press ENTER to calibrate");
-        Button.waitForAnyPress();
-        Lcd.print(6, "Calibrating..");
-        colorBackgroundL = getAverageRedValue(colorSensorL);
-        colorBackgroundR = getAverageRedValue(colorSensorR);
-        Lcd.print(7, "SUCCES!");
-        Delay.msDelay(250);
-	}
-	
-	private float getAverageRedValue(ColorSensor colorSensor) {
-		float sum = 0;
-        for(int i = 0; i < CALIBRATION_CYCLES; i++) {
-        	Delay.msDelay(250);
-        	sum += colorSensor.getRed();
-        }
-        return sum/CALIBRATION_CYCLES;
+	private int[] getAverageRGB(ColorSensor colorSensor) {
+		Color rgb = colorSensor.getColor();		
+		int[] sum = new int[3]; // 3 for R G B
+		
+		//loop calibratie cycles om som van R G B te maken
+		for(int i = 0; i < CALIBRATION_CYCLES; i++) {
+			sum[0] += rgb.getRed();
+			sum[1] += rgb.getGreen();
+			sum[2] += rgb.getBlue();
+		}
+		
+		//loop R G B voor gemiddelde te berekenen
+		//neem tiende waarden voor minder gevoeligheid
+		for(int i = 0; i < 3; i++) {
+			sum[i] /= CALIBRATION_CYCLES;
+			sum[i] = Math.round((float) sum[i] / 10);
+		}
+		
+		return sum;
 	}
 
 	private void askUserInput() {
@@ -354,8 +258,8 @@ public class LineFollowerThree {
 	}
 
 	private void prepareSensor(ColorSensor colorSensor) {
-        colorSensor.setRedMode();
-        colorSensor.setFloodLight(Color.RED);
+        colorSensor.setRGBMode();
+        colorSensor.setFloodLight(Color.WHITE);
         colorSensor.setFloodLight(true);
 	}
     
