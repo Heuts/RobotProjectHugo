@@ -96,7 +96,9 @@ public class LineFollowerThree {
 
 	private void followLine() {
     	
-		int power = 60;
+		long startTime;
+		
+		int power = 50;
 		
 		motorL.forward();
 		motorR.forward();
@@ -114,9 +116,11 @@ public class LineFollowerThree {
 	    		motorR.setPower(power);
 	    		motorL.backward();
 	    		motorL.setPower(power/2);
-	    		
 	    	}
-	    	if(positionL < 0.3) {
+	    	
+	    	startTime = System.currentTimeMillis();
+	    	while(positionL < 0.3 && Button.ESCAPE.isUp()) {
+	    		positionL = detectPosition(colorSensorL);
 	    		motorR.forward();
 	    		motorR.setPower(power);
 	    		motorL.backward();
@@ -133,8 +137,9 @@ public class LineFollowerThree {
 	    		motorR.setPower(power/2);
 	    		
 	    	}
-	    	
-	    	if(positionR < 0.3) {
+	    	startTime = System.currentTimeMillis();
+	    	while(positionR < 0.3  && Button.ESCAPE.isUp()) {
+	    		positionR = detectPosition(colorSensorR);
 	    		motorL.forward();
 	    		motorL.setPower(power+20);
 	    		motorR.backward();
