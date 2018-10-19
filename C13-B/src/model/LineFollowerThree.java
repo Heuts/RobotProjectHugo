@@ -96,7 +96,7 @@ public class LineFollowerThree {
 
 	private void followLine() {
     	
-		int power = 40;
+		int power = 60;
 		
 		motorL.forward();
 		motorR.forward();
@@ -104,59 +104,51 @@ public class LineFollowerThree {
 		motorR.setPower(power);
     	
 		while (Button.ESCAPE.isUp()) {
-	    	//10% marge nog te testen!! TODO TODO TODO
 	    	float positionL = detectPosition(colorSensorL);
 	    	
-	    	if(positionL < straightLinePosition[0] * 1.05) {
+	    	Lcd.print(4, "Links: %.3f", positionL);
+	    	
+	    	//als hij naar rechts afwijkt
+	    	if(positionL < straightLinePosition[0]) {
 	    		motorR.forward();
 	    		motorR.setPower(power);
+	    		motorL.backward();
+	    		motorL.setPower(power/2);
 	    		
-	    		if(positionL > straightLinePosition[0] * 0.75) {
-	        		motorL.forward();
-	        		motorL.setPower(0);
-	        		
-		    		motorR.forward();
-		    		motorR.setPower((int) (power*1.5));
-	    		} else if(positionL > straightLinePosition[0] * 0.5) {
-	        		motorL.backward();
-	        		motorL.setPower(power);
-	        		
-		    		motorR.forward();
-		    		motorR.setPower((int) (power*2));
-	    		} else {
-	        		motorL.backward();
-	        		motorL.setPower((int) (power*2));
-	        		
-	        		motorR.forward();
-	        		motorR.setPower((int) (power*2));
-	    		}
+	    	}
+	    	if(positionL < 0.3) {
+	    		motorR.forward();
+	    		motorR.setPower(power+20);
+	    		motorL.backward();
+	    		motorL.setPower(power+20);
 	    	}
 	    	
 	    	float positionR = detectPosition(colorSensorR);
+	    	Lcd.print(5, "Rechts: %.3f", positionR);
 	    	
-	    	if(positionR < straightLinePosition[0] * 1.05) {
+	    	if(positionR < straightLinePosition[1]) {
 	    		motorL.forward();
-	    		motorL.setPower(power);
-	    		if(positionR > straightLinePosition[0] * 0.75) {
-	        		motorR.forward();
-	        		motorR.setPower(0);
-	        		
-	        		motorL.forward();
-	        		motorL.setPower((int) (power*1.5));
-	    		} else if(positionR > straightLinePosition[0] * 0.5) {
-	        		motorR.backward();
-	        		motorR.setPower(power);
-	        		
-	        		motorL.forward();
-	        		motorL.setPower((int) (power*2));
-	    		} else {
-	        		motorR.backward();
-	        		motorR.setPower((int) (power*2));
-	        		
-	        		motorL.forward();
-	        		motorL.setPower((int) (power*2));
-	    		}
+	    		motorL.setPower(power + 10);
+	    		motorR.backward();
+	    		motorR.setPower(power/2);
+	    		
 	    	}
+	    	
+	    	if(positionR < 0.3) {
+	    		motorL.forward();
+	    		motorL.setPower(power+30);
+	    		motorR.backward();
+	    		motorR.setPower(power+30);
+	    	}
+	    	
+	    	if(positionL > 0.5 && positionR > 0.5) {
+	    		motorL.forward();
+	    		motorL.setPower(power+10);
+	    		motorR.forward();
+	    		motorR.setPower(power+10);
+	    	}
+	    		
+	    	
 		}
 		
     	//voor testing purposes
