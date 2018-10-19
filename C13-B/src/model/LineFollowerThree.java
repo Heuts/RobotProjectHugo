@@ -107,6 +107,7 @@ public class LineFollowerThree {
     	
 		while (Button.ESCAPE.isUp()) {
 	    	float positionL = detectPosition(colorSensorL);
+	    	int rechthoek;
 	    	
 	    	Lcd.print(4, "Links: %.3f", positionL);
 	    	
@@ -122,7 +123,7 @@ public class LineFollowerThree {
 	    	while(positionL < 0.3 && Button.ESCAPE.isUp()) {
 	    		positionL = detectPosition(colorSensorL);
 	    		motorR.forward();
-	    		motorR.setPower(power);
+	    		motorR.setPower(power+15);
 	    		motorL.backward();
 	    		motorL.setPower(power);
 	    	}
