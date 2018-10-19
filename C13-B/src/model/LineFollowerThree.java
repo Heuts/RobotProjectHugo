@@ -118,9 +118,9 @@ public class LineFollowerThree {
 	    	}
 	    	if(positionL < 0.3) {
 	    		motorR.forward();
-	    		motorR.setPower(power+20);
+	    		motorR.setPower(power);
 	    		motorL.backward();
-	    		motorL.setPower(power+20);
+	    		motorL.setPower(power);
 	    	}
 	    	
 	    	float positionR = detectPosition(colorSensorR);
@@ -136,9 +136,9 @@ public class LineFollowerThree {
 	    	
 	    	if(positionR < 0.3) {
 	    		motorL.forward();
-	    		motorL.setPower(power+30);
+	    		motorL.setPower(power+20);
 	    		motorR.backward();
-	    		motorR.setPower(power+30);
+	    		motorR.setPower(power+20);
 	    	}
 	    	
 	    	if(positionL > 0.5 && positionR > 0.5) {
