@@ -196,6 +196,7 @@ public class LineFollowerThree {
 		
 		//loop calibratie cycles om som van R G B te maken
 		for(int i = 0; i < CALIBRATION_CYCLES; i++) {
+			//TODO: functie get RGB values gebruiken
 			sum[0] += rgb.getRed();
 			sum[1] += rgb.getGreen();
 			sum[2] += rgb.getBlue();
@@ -240,9 +241,8 @@ public class LineFollowerThree {
     	
 		while (Button.ESCAPE.isUp()) {
 	    	float positionL = detectPosition(colorSensorL);
-	    	int rechthoek;
-	    	
-	    	if(isFinish())
+	    	float positionR = detectPosition(colorSensorR);
+	    	if(isFinish(positionL, positionR))
 	    		break;
 	    	
 	    	Lcd.print(4, "Links: %.3f", positionL);
@@ -266,7 +266,7 @@ public class LineFollowerThree {
 	    		motorL.setPower(power);
 	    	}
 	    	
-	    	float positionR = detectPosition(colorSensorR);
+	    	positionR = detectPosition(colorSensorR);
 	    	Lcd.print(5, "Rechts: %.3f", positionR);
 	    	
 	    	//als rechtersensor grijzer wordt
@@ -306,13 +306,15 @@ public class LineFollowerThree {
     }
 
 
-	private boolean isFinish() {
+	private boolean isFinish(float positionL, float positionR) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	private float detectPosition(ColorSensor colorSensor) {
-		return colorSensor.getRed();
+	private int[] detectPosition(ColorSensor colorSensor) {
+		Color rgb = colorSensor.getColor();	 //TODO: WAT IS DE OUTPUT VAN DEZE FUNCTIE ??? kunnen we hierop rijden??
+											 // dan kunnen we hierop alles doen en enkel rgb voor finish
+		return divideRgbValues(new int[] {rgb.getRed(), rgb.getGreen(), rgb.getBlue()},10);
 	}
 
 	private void endOfProgram() {
