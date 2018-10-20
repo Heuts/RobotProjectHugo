@@ -18,12 +18,34 @@ public class LineFollowerThree {
 	 */
     private UnregulatedMotor motorL;
     private UnregulatedMotor motorR;
+    /*
+     * The bot drives on two color sensors, left and right
+     */
     private ColorSensor colorSensorL;
     private ColorSensor colorSensorR;
+    /*
+     * colorFinish is an array which consists of two arrays
+     * 		first array with size == amount of sensors
+     * 		second array with size == 3
+     * 			values for: Red Green Blue
+     */
     private int[][] colorFinish;
+    /*
+     * colorBackground is an array which consists of two arrays
+     * 		first array with size == amount of sensors
+     * 		second array with size == 3
+     * 			values for: Red Green Blue
+     */
     private int[][] colorBackground;
+    /*
+     * Used in determining calibration precision, more == longer == more precise
+     */
     private final static int CALIBRATION_CYCLES = 4;
     
+    
+    /*
+     * tijdelijke functie die weggaat bij integratie in project, zal de launch oproepen die de constructor zal worden
+     */
     public static void main(String[] args)
     {
     	//temporary main
@@ -36,31 +58,176 @@ public class LineFollowerThree {
     
     //TODO: launch zal constructor worden
     private void launch(String leftMotor, String rightMotor, String leftColorSensor, String rightColorSensor) {
+    	/*
+    	 * Toewijzen van de motoren en sensors
+    	 */
     	setMotorL(leftMotor);
     	setMotorR(rightMotor);
     	setColorSensorL(leftColorSensor);
     	setColorSensorR(rightColorSensor);
     	
-    	Lcd.print(1, "Line Follower V3");
+    	/*
+    	 * Titel van programma
+    	 */
+    	Lcd.print(1, "Line Follower V.RGB");
     	
-    	prepareSensor(colorSensorL);
-    	prepareSensor(colorSensorR);
+    	/*
+    	 * Klaarzetten van sensors
+    	 */
+    	Lcd.print(2, "Opstarten sensors..");
+    	prepareRGBSensor(colorSensorL);
+    	prepareRGBSensor(colorSensorR);
     	
+    	Lcd.clear(2);
     	Lcd.print(2, "Sensors ready");
     	
+    	/*
+    	 * Start calibratieprogramma
+    	 */
     	startCalibration();
-    	printCalibration();
+//    	printCalibration();
     	askUserInput();
     	Button.waitForAnyPress();
     	
-//    	followLine();
+    	/*
+    	 * Start follow line methode
+    	 */
+    	followLine();
     	
+    	/*
+    	 * Einde programma
+    	 */
     	askUserInput();
     	Button.waitForAnyPress();
-        
         endOfProgram();
 	}
 
+	private void setColorSensorR(String rightColorSensor) {
+		// TODO S4 vervangen door parameter
+		colorSensorR = new ColorSensor(SensorPort.S2);
+	}
+
+	private void setColorSensorL(String leftColorSensor) {
+		//TODO S1 vervangen door parameter
+		colorSensorL = new ColorSensor(SensorPort.S1);
+	}
+
+	private void setMotorR(String rightMotor) {
+    	//TODO A vervangen door rightmotor
+    	motorR = new UnregulatedMotor(MotorPort.D);
+	}
+
+	private void setMotorL(String leftMotor) {
+    	//TODO A vervangen door leftmotor
+    	motorL = new UnregulatedMotor(MotorPort.A);
+    }
+	
+	/*
+	 * RGB mode toewijzen aan sensor en bijpassende floodlights aanzetten
+	 */
+	private void prepareRGBSensor(ColorSensor colorSensor) {
+        colorSensor.setRGBMode();
+        colorSensor.setFloodLight(Color.WHITE);
+        colorSensor.setFloodLight(true);
+	}
+
+	/*
+	 * Hulpfunctie die groene led aanzet en piepend geluid maakt
+	 * Indicatie dat userinput wordt verwacht
+	 */
+	private void askUserInput() {
+		Button.LEDPattern(4);    // flash green led and 
+        Sound.beepSequenceUp();  // make sound when ready.
+	}
+    
+	/*
+	 * Methode verantwoordelijk voor de calibratieprocedure van de bot
+	 */
+	private void startCalibration() {
+		/*
+		 * Geef begin aan van calibratie
+		 */
+    	askUserInput();
+        Lcd.print(3, "Press ENTER to start calibrate");
+        Button.waitForAnyPress();
+        
+        /*
+         * calibratie van de verschillende aspecten van parcours
+         */
+        prepareUserForCalibration("Finish");
+        colorFinish = calibrateSurface();
+        wrapUpCalibration();
+        
+        prepareUserForCalibration("Background");
+        colorBackground = calibrateSurface();
+        wrapUpCalibration();
+	}
+	
+	private void prepareUserForCalibration(String toCalibrate) {
+        askUserInput();
+        Lcd.clear();
+        Lcd.print(4, "%s:", toCalibrate);
+        Lcd.print(5, "Press ENTER to calibrate");
+        Button.waitForAnyPress();
+        Lcd.print(6, "Calibrating..");
+	}
+	
+	private void wrapUpCalibration() {
+        Lcd.print(7, "SUCCES!");
+        Delay.msDelay(250);
+	}
+	
+	private int[][] calibrateSurface() {
+		return new int[][]{divideRgbValues(getAverageRGB(colorSensorL), 10),
+						   divideRgbValues(getAverageRGB(colorSensorR), 10)};
+	}
+	
+
+	/*
+	 * zal rgb waarde over meerdere cycles nemen en gemiddelde return
+	 * @param: ColorSensor => waardes worden per individuele sensor verwerkt
+	 * @return: int[]
+	 * 		deze array heeft lengte 3 (RGB)
+	 * 		RGB waarden zijn gemiddelde R, gemiddelde G en gemiddelde B over aantal calibratie cycles
+	 */
+	private int[] getAverageRGB(ColorSensor colorSensor) {
+		Color rgb = colorSensor.getColor();		
+		int[] sum = new int[3]; // 3 for R G B
+		
+		//loop calibratie cycles om som van R G B te maken
+		for(int i = 0; i < CALIBRATION_CYCLES; i++) {
+			sum[0] += rgb.getRed();
+			sum[1] += rgb.getGreen();
+			sum[2] += rgb.getBlue();
+		}
+		
+		//loop R G B voor gemiddelde te berekenen
+		for(int i = 0; i < 3; i++) {
+			sum[i] /= CALIBRATION_CYCLES;
+		}
+		
+		return sum;
+	}
+	
+	/*
+	 * gebruiken we om gevoeligheid van RGB waarden lager te maken en bv met tientallen te werken
+	 * 
+	 */
+	private int[] divideRgbValues(int[] RgbValues, int divideBy) {
+		for(int RGB: RgbValues) {
+			RGB = Math.round((float) RGB / divideBy);
+		}
+		return RgbValues;
+	}
+	
+	private void printCalibration() {
+        Lcd.clear();
+        Lcd.print(1, "Calibration results:");
+        Lcd.print(2, "FL: %d %d %d", colorFinish[0][0], colorFinish[0][1], colorFinish[0][2]);
+        Lcd.print(3, "FR: %d %d %d",  colorFinish[1][0], colorFinish[1][1], colorFinish[1][2]);
+        Lcd.print(6, "BL: %d %d %d", colorBackground[0][0], colorBackground[0][1], colorBackground[0][2]);
+        Lcd.print(7, "BR: %d %d %d", colorBackground[1][0], colorBackground[1][1], colorBackground[1][2]);
+	}
 
 	private void followLine() {
     	
@@ -165,102 +332,4 @@ public class LineFollowerThree {
 	}
 
 
-	/*
-     * CALLIBRATIE DEEL HIERONDER
-     */
-    
-	private void printCalibration() {
-        Lcd.clear();
-        Lcd.print(1, "Calibration results:");
-        Lcd.print(2, "FL: %d %d %d", colorFinish[0][0], colorFinish[0][1], colorFinish[0][2]);
-        Lcd.print(3, "FR: %d %d %d",  colorFinish[1][0], colorFinish[1][1], colorFinish[1][2]);
-        Lcd.print(6, "BL: %d %d %d", colorBackground[0][0], colorBackground[0][1], colorBackground[0][2]);
-        Lcd.print(7, "BR: %d %d %d", colorBackground[1][0], colorBackground[1][1], colorBackground[1][2]);
-	}
-
-	private void setColorSensorR(String rightColorSensor) {
-		// TODO S4 vervangen door parameter
-		colorSensorR = new ColorSensor(SensorPort.S2);
-	}
-
-	private void setColorSensorL(String leftColorSensor) {
-		//TODO S1 vervangen door parameter
-		colorSensorL = new ColorSensor(SensorPort.S1);
-	}
-
-	private void setMotorR(String rightMotor) {
-    	//TODO A vervangen door rightmotor
-    	motorR = new UnregulatedMotor(MotorPort.D);
-	}
-
-	private void setMotorL(String leftMotor) {
-    	//TODO A vervangen door leftmotor
-    	motorL = new UnregulatedMotor(MotorPort.A);
-    }
-
-	private void startCalibration() {
-    	askUserInput();
-        Lcd.print(3, "Press ENTER to start calibrate");
-        Button.waitForAnyPress();
-        calibrateFinish();
-        calibrateBackground();
-	}
-	
-	private void calibrateBackground() {
-        askUserInput();
-        Lcd.clear();
-        Lcd.print(4, "Place bot on background");
-        Lcd.print(5, "Press ENTER to calibrate");
-        Button.waitForAnyPress();
-        Lcd.print(6, "Calibrating..");
-        colorBackground = new int[][]{getAverageRGB(colorSensorL), getAverageRGB(colorSensorR)};
-        Lcd.print(7, "SUCCES!");
-        Delay.msDelay(250);
-	}
-	
-	private void calibrateFinish() {
-        askUserInput();
-        Lcd.clear();
-        Lcd.print(4, "Place bot on finishline");
-        Lcd.print(5, "Press ENTER to calibrate");
-        Button.waitForAnyPress();
-        Lcd.print(6, "Calibrating..");
-        colorFinish = new int[][] {getAverageRGB(colorSensorL), getAverageRGB(colorSensorR)};
-        Lcd.print(7, "SUCCES!");
-        Delay.msDelay(250);
-	}
-
-	
-	private int[] getAverageRGB(ColorSensor colorSensor) {
-		Color rgb = colorSensor.getColor();		
-		int[] sum = new int[3]; // 3 for R G B
-		
-		//loop calibratie cycles om som van R G B te maken
-		for(int i = 0; i < CALIBRATION_CYCLES; i++) {
-			sum[0] += rgb.getRed();
-			sum[1] += rgb.getGreen();
-			sum[2] += rgb.getBlue();
-		}
-		
-		//loop R G B voor gemiddelde te berekenen
-		//neem tiende waarden voor minder gevoeligheid
-		for(int i = 0; i < 3; i++) {
-			sum[i] /= CALIBRATION_CYCLES;
-			sum[i] = Math.round((float) sum[i] / 10);
-		}
-		
-		return sum;
-	}
-
-	private void askUserInput() {
-		Button.LEDPattern(4);    // flash green led and 
-        Sound.beepSequenceUp();  // make sound when ready.
-	}
-
-	private void prepareSensor(ColorSensor colorSensor) {
-        colorSensor.setRGBMode();
-        colorSensor.setFloodLight(Color.WHITE);
-        colorSensor.setFloodLight(true);
-	}
-    
 }
