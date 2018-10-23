@@ -333,5 +333,4 @@ public class LineFollowerThree {
         Lcd.print(5, "in close");
 	}
 
-
 }
