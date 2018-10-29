@@ -8,10 +8,17 @@ import lejos.utility.Delay;
 
 public class Playground {
 	public static void main(String[] args) {
-		int red = 76, green = 86, blue = 96;
-		int[] values = detectPosition(red, green, blue);
-		System.out.printf("%d %d %d", values[0], values[1], values[2]);
-		loop();
+//		int red = 76, green = 86, blue = 96;
+//		int[] values = detectPosition(red, green, blue);
+//		System.out.printf("%d %d %d", values[0], values[1], values[2]);
+		Stopwatch stopwatch = new Stopwatch();
+		stopwatch.start();
+		while(stopwatch.getElapsedTimeSecs() < 10) {
+			System.out.printf("\n%.2f", stopwatch.getElapsedTime()/1000.0);
+			Delay.msDelay(100);
+		}
+			
+//		timer();
 	}
 	
 	private static int[] detectPosition(int red, int green, int blue) {

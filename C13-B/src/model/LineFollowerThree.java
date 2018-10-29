@@ -36,6 +36,8 @@ public class LineFollowerThree {
      * 			values for: Red Green Blue
      */
     private int[][] colorFinish;
+    private int[][] colorFinishMax = new int[2][3];
+    private int[][] colorFinishMin = new int[2][3];
     
     /*
      * absolute rgb value per sensor
@@ -60,6 +62,8 @@ public class LineFollowerThree {
      * Used in determining calibration precision, more == longer == more precise
      */
     private final static int CALIBRATION_CYCLES = 4;
+    private final static double CALIBRATION_FINISH_MARGIN_ABS = 10;
+    private final static double CALIBRATION_FINISH_MARGIN_REL = 0.1;
     
     
     /*
@@ -175,6 +179,7 @@ public class LineFollowerThree {
          */
         prepareUserForCalibration("Finish");
         colorFinish = calibrateSurface();
+        calculateCalibrationExtremes(colorFinish);
         colorFinishAbsolute = new int[] {calculateAbsolutePosition(colorFinish[0]), calculateAbsolutePosition(colorFinish[1])};
         wrapUpCalibration();
         
@@ -184,6 +189,24 @@ public class LineFollowerThree {
         wrapUpCalibration();
 	}
 	
+	private void calculateCalibrationExtremes(int[][] colorFinish) {
+		
+		for(int i = 0; i < colorFinish.length; i++) {
+			colorFinishMax[i] = new int[] {80, 50, 99};
+			colorFinishMin[i] = new int[] {60, 0, 0};;
+		}
+		
+		//calibratie versie
+		
+//		for(int j = 0; j < colorFinish.length; j++) {
+//			for(int i = 0; i < colorFinish[j].length; i++) {
+//				colorFinishMax[j][i] = (int) ((colorFinish[j][i])*(1+CALIBRATION_FINISH_MARGIN_REL) + CALIBRATION_FINISH_MARGIN_ABS);
+//				colorFinishMin[j][i] = (int) ((colorFinish[j][i])*(1-CALIBRATION_FINISH_MARGIN_REL) - CALIBRATION_FINISH_MARGIN_ABS);
+//			}
+//		}
+		
+	}
+
 	private void prepareUserForCalibration(String toCalibrate) {
         askUserInput();
         Lcd.clear();
@@ -237,9 +260,9 @@ public class LineFollowerThree {
 	 * 
 	 */
 	private int[] divideRgbValues(int[] RgbValues, int divideBy) {
-		for(int i = 0; i < RgbValues.length; i++) {
-			RgbValues[i] = Math.round((float) RgbValues[i] / divideBy);
-		}
+//		for(int i = 0; i < RgbValues.length; i++) {
+//			RgbValues[i] = Math.round((float) RgbValues[i] / divideBy);
+//		}
 		return RgbValues;
 	}
 	
@@ -257,6 +280,7 @@ public class LineFollowerThree {
 		int power = 50;
 		
 		boolean running = false;
+		Stopwatch stopwatch = new Stopwatch();
 		
 		motorL.forward();
 		motorR.forward();
@@ -265,9 +289,6 @@ public class LineFollowerThree {
     	
 		while (Button.ESCAPE.isUp()) {
 			
-			
-			long startTime = 0L;
-			long elapsedTime = 0L;
 			
 	    	int[] RgbPositionL = detectPosition(colorSensorL);
 	    	int[] RgbPositionR = detectPosition(colorSensorR);
@@ -281,17 +302,11 @@ public class LineFollowerThree {
 	    			break;
 	    		} else {
 	    			running = true;
-	    			Lcd.print(8, "Started!");
-	    			startTime = System.currentTimeMillis();
-		    		motorL.forward();
-		    		motorL.setPower(power+10);
-		    		motorR.forward();
-		    		motorR.setPower(power+10);
-	    			Delay.msDelay(500);
+	    			stopwatch.start();
 	    		}
 	    	}
-	    	elapsedTime = (new Date()).getTime() - startTime;
-	    	Lcd.print(8, "%d", elapsedTime);
+	    	Lcd.clear(8);
+	    	Lcd.print(8, "%d", stopwatch.getElapsedTimeSecs());
 	    	Lcd.print(4, "L Sensor: %d %d %d", RgbPositionL[0], RgbPositionL[1], RgbPositionL[2]);
 	    	Lcd.print(5, "L Finish: %d %d %d", colorFinish[0][0], colorFinish[0][1], colorFinish[0][2]);
 	    	
@@ -305,13 +320,13 @@ public class LineFollowerThree {
 	    	}
 	    	
 	    	//als linkersensor boven zwarte lijn is
-	    	//blijf blijf naar links draaien
-	    	while(positionL < 10 && Button.ESCAPE.isUp()) {
+	    	//blijf naar links draaien
+	    	while(positionL < 140 && Button.ESCAPE.isUp()) {
 	    		positionL = calculateAbsolutePosition(detectPosition(colorSensorL));
 	    		motorR.forward();
-	    		motorR.setPower(power+15);
+	    		motorR.setPower(power+20+15);
 	    		motorL.backward();
-	    		motorL.setPower(power);
+	    		motorL.setPower(power+20);
 	    	}
 	    	
 	    	positionR = calculateAbsolutePosition(detectPosition(colorSensorR));
@@ -325,12 +340,11 @@ public class LineFollowerThree {
 	    		motorL.setPower(power + 10);
 	    		motorR.backward();
 	    		motorR.setPower(power/2);
-	    		
 	    	}
 
 	    	//als rechtersensor boven zwart is
-	    	//blijf naar links draaien
-	    	while(positionR < 10  && Button.ESCAPE.isUp()) {
+	    	//blijf naar rechts draaien
+	    	while(positionR < 140  && Button.ESCAPE.isUp()) {
 	    		positionR = calculateAbsolutePosition(detectPosition(colorSensorR));
 	    		motorL.forward();
 	    		motorL.setPower(power+20+20); //sterker om te zwakkere motor te corrigeren
@@ -339,7 +353,7 @@ public class LineFollowerThree {
 	    	}
 	    	
 	    	//rij rechtdoor als beide sensors wit genoeg zijn
-	    	if(positionL > 17 && positionR > 17) {
+	    	if(positionL > 100 && positionR > 100) {
 	    		motorL.forward();
 	    		motorL.setPower(power+10);
 	    		motorR.forward();
@@ -354,10 +368,21 @@ public class LineFollowerThree {
     	motorR.stop();
     }
 
-
+//TODO: loopjes maken evt positionL en R in array steken als het helpt
 	private boolean isFinish(int[] positionL, int[] positionR) {
-		return Arrays.equals(positionL, colorFinish[0]) || 
-			   Arrays.equals(positionR, colorFinish[1]);
+		
+		if(positionL[0] > colorFinishMin[0][0] && positionL[0] < colorFinishMax[0][0] &&
+		   positionL[1] > colorFinishMin[0][1] && positionL[1] < colorFinishMax[0][1] &&
+		   positionL[2] > colorFinishMin[0][2] && positionL[2] < colorFinishMax[0][2]) return true;
+		
+		if(positionR[0] > colorFinishMin[1][0] && positionR[0] < colorFinishMax[1][0] &&
+		   positionR[1] > colorFinishMin[1][1] && positionR[1] < colorFinishMax[1][1] &&
+		   positionR[2] > colorFinishMin[1][2] && positionR[2] < colorFinishMax[1][2]) return true;
+		
+		return false;
+		
+//		return Arrays.equals(positionL, colorFinish[0]) || 
+//			   Arrays.equals(positionR, colorFinish[1]);
 	}
 
 	private int[] detectPosition(ColorSensor colorSensor) {
