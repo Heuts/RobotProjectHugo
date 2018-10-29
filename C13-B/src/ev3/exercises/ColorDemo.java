@@ -67,7 +67,8 @@ public class ColorDemo
             rgb = color.getColor();
             
             Lcd.clear(6);
-            Lcd.print(6, "r=%d g=%d b=%d", rgb.getRed(), rgb.getGreen(), rgb.getBlue());
+            Lcd.print(6, rgb.toString());
+//            Lcd.print(6, "r=%d g=%d b=%d", rgb.getRed(), rgb.getGreen(), rgb.getBlue());
             Delay.msDelay(250);
         }
 
