@@ -46,7 +46,8 @@ public class Launcher {
     /*
      * absolute RGB value per sensor
      */
-    private int[] colorBackgroundAbsolute;
+    private int colorBackgroundCumulativeL;
+    private int colorBackgroundCumulativeR;
     
     
     /*
@@ -162,9 +163,9 @@ public class Launcher {
         View.prepareUserForCalibration("Background");
         calibrator.calibrateSurface(colorSensorL, "background");
         calibrator.calibrateSurface(colorSensorR, "background");
-        
-        colorBackgroundAbsolute = new int[] {calculateAbsolutePosition(colorBackground[0]), 
-        		calculateAbsolutePosition(colorBackground[1])};
+
+        colorBackgroundCumulativeL = calibrator.calculateCumulRgbValue(colorSensorL, "background");
+        colorBackgroundCumulativeL = calibrator.calculateCumulRgbValue(colorSensorR, "background");
         View.CalibrationSuccess();
 	}
 	
@@ -194,8 +195,8 @@ public class Launcher {
 	    	int[] RgbPositionL = detectPosition(colorSensorL);
 	    	int[] RgbPositionR = detectPosition(colorSensorR);
 	    	
-	    	int positionL = calculateAbsolutePosition(RgbPositionL);
-	    	int positionR = calculateAbsolutePosition(RgbPositionR);
+	    	int positionL = calibrator.calculateCumulRgbValue(RgbPositionL);
+	    	int positionR = calibrator.calculateCumulRgbValue(RgbPositionR);
 	    	
 	    	if(isFinish(RgbPositionL, RgbPositionR)) {
 	    		View.alert();
@@ -213,7 +214,7 @@ public class Launcher {
 	    	
 	    	//als hij naar rechts afwijkt
 	    	//draai links licht
-	    	if(positionL < colorBackgroundAbsolute[0]) {
+	    	if(positionL < colorBackgroundCumulativeL) {
 	    		motorR.forward();
 	    		motorR.setPower(power);
 	    		motorL.backward();
@@ -223,20 +224,20 @@ public class Launcher {
 	    	//als linkersensor boven zwarte lijn is
 	    	//blijf naar links draaien
 	    	while(positionL < 140 && Button.ESCAPE.isUp()) {
-	    		positionL = calculateAbsolutePosition(detectPosition(colorSensorL));
+	    		positionL = calibrator.calculateCumulRgbValue(detectPosition(colorSensorL));
 	    		motorR.forward();
 	    		motorR.setPower(power+20+15);
 	    		motorL.backward();
 	    		motorL.setPower(power+20);
 	    	}
 	    	
-	    	positionR = calculateAbsolutePosition(detectPosition(colorSensorR));
+	    	positionR = calibrator.calculateCumulRgbValue(detectPosition(colorSensorR));
 	    	Lcd.print(6, "R Sensor: %d %d %d", RgbPositionR[0], RgbPositionR[1], RgbPositionR[2]);
 	    	Lcd.print(7, "R Finish: %d %d %d", colorFinish[1][0], colorFinish[1][1], colorFinish[1][2]);
 	    	
 	    	//als rechtersensor grijzer wordt
 	    	//draai naar links
-	    	if(positionR < colorBackgroundAbsolute[1]) {
+	    	if(positionR < colorBackgroundCumulativeR) {
 	    		motorL.forward();
 	    		motorL.setPower(power + 10);
 	    		motorR.backward();
@@ -246,7 +247,7 @@ public class Launcher {
 	    	//als rechtersensor boven zwart is
 	    	//blijf naar rechts draaien
 	    	while(positionR < 140  && Button.ESCAPE.isUp()) {
-	    		positionR = calculateAbsolutePosition(detectPosition(colorSensorR));
+	    		positionR = calibrator.calculateCumulRgbValue(detectPosition(colorSensorR));
 	    		motorL.forward();
 	    		motorL.setPower(power+20+20); //sterker om te zwakkere motor te corrigeren
 	    		motorR.backward();
@@ -297,14 +298,6 @@ public class Launcher {
 		return new int[] {rgb.getRed(), rgb.getGreen(), rgb.getBlue()};
 	}
 	
-	private int calculateAbsolutePosition(int[] RgbValues) {
-		int sum = 0;
-		for(int color: RgbValues) {
-			sum += color;
-		}
-		return sum;
-	}
-
 	private void closeSensors() {
         motorL.close();
         motorR.close();

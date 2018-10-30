@@ -37,13 +37,16 @@ public class ColorManager {
 	public void setMap(String map, int[] rgb, String sensor) {
 		if(map.equals("background")) {
 			backgroundMap.put(sensor, rgb);
-		} else if(map.equals("finish")) {
+		}
+		if(map.equals("finish")) {
 			finishMap.put(sensor, rgb);
-		} else if(map.equals("finishMax")) {
+		}
+		if(map.equals("finishMax")) {
 			finishMaxMap.put(sensor, rgb);
-		} else if(map.equals("finishMin")) {
+		}
+		if(map.equals("finishMin")) {
 			finishMinMap.put(sensor, rgb);
-		} else return;
+		}
 	}
 	
 	public int[] getRgb() {

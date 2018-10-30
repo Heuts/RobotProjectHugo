@@ -200,5 +200,21 @@ public class Calibrator {
 							colorSensor.getName());
 		
 	}
+
+	public int calculateCumulRgbValue(ColorSensor colorSensor, String map) {
+		
+		int[] RgbValues = colorManager	.getSensor(colorSensor.getName())
+										.getMap(map)
+										.getRgb();
+		
+		return calculateCumulRgbValue(RgbValues);
+	}
 	
+	public int calculateCumulRgbValue(int[] RgbValues) {
+		int sum = 0;
+		for(int color: RgbValues) {
+			sum += color;
+		}
+		return sum;		
+	}
 }
