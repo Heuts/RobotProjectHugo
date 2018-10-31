@@ -5,7 +5,6 @@ import lejos.hardware.port.*;
 import lejos.robotics.Color;
 import lejos.utility.Delay;
 import utility.ColorSensor;
-import utility.Lcd;
 
 
 public class Launcher {
@@ -104,7 +103,7 @@ public class Launcher {
     	/*
     	 * End program
     	 */
-    	View.printFinal();
+
         View.alert();
         View.waitAny();
     	View.printShutdown();

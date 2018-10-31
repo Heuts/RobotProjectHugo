@@ -6,7 +6,6 @@ import lejos.robotics.Color;
 import lejos.utility.Delay;
 import model.Stopwatch;
 import utility.ColorSensor;
-import utility.Lcd;
 
 public class Drive {
 	
@@ -106,6 +105,7 @@ public class Drive {
 		Delay.msDelay(250);
 		stopMotor();
 		Delay.msDelay(250);
+    	View.printFinal(stopwatch);
  
     }
 	

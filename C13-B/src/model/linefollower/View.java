@@ -39,13 +39,15 @@ public class View {
     	Button.waitForAnyPress();
 	}
 
-	public static void printFinal() {
+	public static void printFinal(Stopwatch stopwatch) {
 		Lcd.clear();
         Lcd.print(6, "Kirov finished!");
+        Lcd.print(7, "%d", stopwatch.getElapsedTimeSecs());
 	}
 
 	public static void printShutdown() {
-		
+		Lcd.clear();
+		Lcd.print(6, "Goodbye!");
 	}
 
 	public static void printStartCalibration() {
