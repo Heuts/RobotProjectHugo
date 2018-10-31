@@ -2,6 +2,8 @@ package utility;
 
 import java.util.ArrayList;
 
+import lejos.hardware.Brick;
+import lejos.hardware.BrickFinder;
 import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.Color;
@@ -12,6 +14,7 @@ public class ColorSensor implements ColorDetector, ColorIdentifier
 {
 	EV3ColorSensor	sensor;
 	float[]		sample;
+	private String name;
 
     	/**
      	* Creates ColorSensor object. This is a wrapper class for EV3ColorSensor.
@@ -23,7 +26,22 @@ public class ColorSensor implements ColorDetector, ColorIdentifier
 		setAmbientMode();
 		setFloodLight(false);
 	}
+	
+	public ColorSensor(Port port, String name) {
+		this(port);
+		this.name = name;
+	}
 
+	/**
+	 * Returns the name of the EV3ColorSensor object.
+	 * @return String.
+	 */
+	public String getName()
+	{
+		return name;
+	}
+	
+	
 	/**
 	 * Returns the underlying EV3ColorSensor object.
 	 * @return Sensor object reference.
