@@ -66,12 +66,14 @@ public class RobotLauncher {
 			Lcd.clear();
 			Lcd.print(1, APP2);
 			startApp2();
+			
 			Delay.msDelay(500);
 		}
 		if (Button.RIGHT.isDown()) {
 			
 			Lcd.clear();
 			Lcd.print(1, APP3);
+			startApp3();
 			
 			Delay.msDelay(500);
 		}
@@ -90,6 +92,10 @@ public class RobotLauncher {
 	// TODO: methode om app2 te starten
 	private void startApp2() {
 		new model.beaconfinder.Launcher(LEFT_MOTOR, RIGHT_MOTOR, MIDDLE_MOTOR, INFRARED, PRESSURE_FRONT);
+	}
+	
+	private void startApp3() {
+		new model.playtag.PlayTag(LEFT_MOTOR, RIGHT_MOTOR, PRESSURE_FRONT, PRESSURE_BACK, INFRARED);
 	}
 
 	/*
