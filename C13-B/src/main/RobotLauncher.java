@@ -18,13 +18,16 @@ public class RobotLauncher {
 	/*
 	 * Assigning ports
 	 */
-	private final static Port LEFT_COLOR = SensorPort.S1,
-							  RIGHT_COLOR = SensorPort.S2,
-							  PRESSURE_FRONT = SensorPort.S3,
-							  PRESSURE_BACK = SensorPort.S2,
-							  INFRARED = SensorPort.S4,
-							  LEFT_MOTOR = MotorPort.A,
-							  RIGHT_MOTOR = MotorPort.D;
+	private final static Port	LEFT_COLOR = SensorPort.S1,
+								RIGHT_COLOR = SensorPort.S2,
+								PRESSURE_FRONT = SensorPort.S3,
+								PRESSURE_BACK = SensorPort.S2,
+								INFRARED = SensorPort.S4,
+								LEFT_MOTOR = MotorPort.A,
+								MIDDLE_MOTOR = MotorPort.C,
+								RIGHT_MOTOR = MotorPort.D;
+								
+							
 							  
 
 	public RobotLauncher() {
@@ -87,7 +90,7 @@ public class RobotLauncher {
 
 	// TODO: methode om app2 te starten
 	private void startApp2() {
-		new RobotMove();
+		new model.beaconfinder.Launcher(LEFT_MOTOR, RIGHT_MOTOR, MIDDLE_MOTOR, INFRARED, PRESSURE_FRONT);
 	}
 
 	/*

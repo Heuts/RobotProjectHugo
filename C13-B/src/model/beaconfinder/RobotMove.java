@@ -4,8 +4,6 @@ import java.util.Random;
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
-import lejos.hardware.port.MotorPort;
-import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3IRSensor;
 import lejos.hardware.sensor.SensorMode;
 import lejos.utility.Delay;
@@ -15,12 +13,18 @@ import utility.TouchSensor;
 public class RobotMove {
 	
 	// Declare the motors in use for movement by the programme
-    static EV3LargeRegulatedMotor motorA = new EV3LargeRegulatedMotor(MotorPort.A);
-    static EV3LargeRegulatedMotor motorD = new EV3LargeRegulatedMotor(MotorPort.D);
+	private EV3LargeRegulatedMotor motorL, motorR;
+
+//    static EV3LargeRegulatedMotor motorA = new EV3LargeRegulatedMotor(MotorPort.A);
+//    static EV3LargeRegulatedMotor motorD = new EV3LargeRegulatedMotor(MotorPort.D);
     
+
     // Declare the sensors in use by the programme
-    static TouchSensor touch = new TouchSensor(SensorPort.S3);
-    static EV3IRSensor sensorIR = new EV3IRSensor(SensorPort.S4);
+	private TouchSensor touch;
+	private EV3IRSensor sensorIR;
+	
+//    static TouchSensor touch = new TouchSensor(SensorPort.S3);
+//    static EV3IRSensor sensorIR = new EV3IRSensor(SensorPort.S4);
     
     // Declare that the sensor uses seek mode to find the beacon
     // Declare that samples of the sensor can be taken and stored as a float
@@ -36,8 +40,13 @@ public class RobotMove {
     final int MAX_SPEED = 700;
     
     
-    // Start of programme
-    public void run() {
+    // Setup and start of programme
+    public void run(Launcher launcher) {
+		this.motorL = launcher.getMotor('L');
+		this.motorR = launcher.getMotor('R');
+		this.sensorIR = launcher.getIR();
+		this.touch = launcher.getTouch();
+
     	
 		Lcd.print(3, "Start programme");
 		
@@ -72,9 +81,6 @@ public class RobotMove {
     	}
     	// When coming out of the loop, halt usage of the motors
     	robotStop();
-    	
-    	// Close the ports of the motors and sensors
-    	robotEnd();
     }
     
     // 
@@ -131,30 +137,27 @@ public class RobotMove {
 				// Check whether the beacon is on the right of the sensor
 				// If so, start the left motor to adjust the angle
 				if (direction > 0) {
-					motorA.forward();
-					motorD.stop(true);
+					motorL.forward();
+					motorR.stop(true);
 					
 					// If while steering the bumper is touched activate the bumper method
-					if (touch.isTouched()) {
+					if (touch.isTouched())
 						robotBumper();
-					}
 					
 				// Check whether the beacon is on the left of the sensor
 				// If so, start the right motor to adjust the angle
 				} else if (direction < 0) {
-					motorA.stop(true);
-					motorD.forward();
+					motorL.stop(true);
+					motorR.forward();
 					
 					// If while steering the bumper is touched activate the bumper method
-					if (touch.isTouched()) {
+					if (touch.isTouched())
 						robotBumper();
-					}
 				
 				// If the distance of the beacon is in range of the integer, 
 				// move forward with maximum speed for 1 millisecond
-				} else if (distance < Integer.MAX_VALUE) {
+				} else if (distance < Integer.MAX_VALUE)
 					moveForward(1);
-				}
 					
 				/* 
 				 * If the distance is between 1 and 29
@@ -163,8 +166,8 @@ public class RobotMove {
 				*/
 				if (distance > minShootingDistance && distance < maxShootingDistance && 
 						direction > minShootingDirection && direction < maxShootingDirection) {
-					motorA.stop(true);
-					motorD.stop(true);
+					motorL.stop(true);
+					motorR.stop(true);
 					Sound.beepSequenceUp();
 					
 					// Determine how often the cannon should fire a missile
@@ -191,14 +194,13 @@ public class RobotMove {
     	return isDestroyed;
     }
     
-    
 	// Move robot backwards with maximum speed for a set amount of 
     // time in milliseconds (determined when the method is called)
 	public void moveBackward(int time) {
-	        motorA.setSpeed(COMPENSATED_MAX_SPEED);
-	        motorD.setSpeed(MAX_SPEED);
-			motorA.backward();
-			motorD.backward();
+	        motorL.setSpeed(COMPENSATED_MAX_SPEED);
+	        motorR.setSpeed(MAX_SPEED);
+			motorL.backward();
+			motorR.backward();
 			Delay.msDelay(time);
 	}
 	
@@ -216,12 +218,12 @@ public class RobotMove {
 		while (secondaryTimer < time)  {
 			
 			// Set the speed of the motors to maximum
-	        motorA.setSpeed(COMPENSATED_MAX_SPEED);
-	        motorD.setSpeed(MAX_SPEED);
+	        motorL.setSpeed(COMPENSATED_MAX_SPEED);
+	        motorR.setSpeed(MAX_SPEED);
 	        
 	        // Ensure that both motors move forwards
-			motorA.forward();
-			motorD.forward();
+			motorL.forward();
+			motorR.forward();
 			
 			// If during this time the bumper is touched 
 			// initialise that the bumper is touched and leave the loop
@@ -283,26 +285,26 @@ public class RobotMove {
 				if (degrees < 0) {
 					
 					// Set the speed of the motors to maximum
-			        motorA.rotate(COMPENSATED_MAX_SPEED, true);
-			        motorD.rotate(MAX_SPEED, true);
+			        motorL.rotate(COMPENSATED_MAX_SPEED, true);
+			        motorR.rotate(MAX_SPEED, true);
 			        
 			        // To make a left turn, motorA requires backward thrust
 			        // and motorD requires forward thrust
-			        motorA.backward();
-			        motorD.forward();
+			        motorL.backward();
+			        motorR.forward();
 			        
 				// If the degrees/direction is a positive number
 				// The robot makes a RIGHT turn
 				} else if (degrees > 0)  {
 					
 					// Set the speed of the motors to maximum
-			        motorA.rotate(COMPENSATED_MAX_SPEED, true);
-			        motorD.rotate(MAX_SPEED, true);
+			        motorL.rotate(COMPENSATED_MAX_SPEED, true);
+			        motorR.rotate(MAX_SPEED, true);
 			        
 			        // To make a right turn, motorA requires forward thrust
 			        // and motorD requires backwards thrust
-			        motorA.forward();
-			        motorD.backward();
+			        motorL.forward();
+			        motorR.backward();
 				}
 				// The secondary timer goes up by 1 millisecond
 				secondaryTimer++;
@@ -349,13 +351,13 @@ public class RobotMove {
 					Lcd.print(4, "Distance: " + distance);
 					
 					// Set the speed of the motors to maximum
-			        motorA.setSpeed(speedRotate);
-			        motorD.setSpeed(speedRotate);
+			        motorL.setSpeed(speedRotate);
+			        motorR.setSpeed(speedRotate);
 			        
 			        // To make a left turn, motorA requires backward thrust
 			        // and motorD requires forward thrust
-			        motorA.backward();
-			        motorD.forward();
+			        motorL.backward();
+			        motorR.forward();
 			        
 			        /* 
 			         * Determine that the direction is between the minimum and maximum parameters
@@ -384,31 +386,8 @@ public class RobotMove {
 			Lcd.print(4, "Now in robotStop");
 			
 			// Halt usage of motors
-			motorA.stop();
-			motorD.stop();
-	}
-	
-	// Stop robot and close the ERV3 ports
-	public void robotEnd() {
-			// Clear LCD
-			Lcd.clear();
-			
-			// Print the current location of the programme
-			Lcd.print(4, "Now in robotEnd");
-			
-			// Halt usage of motors
-			motorA.stop();
-			motorD.stop();
-			
-			// Close the motor ports
-			motorA.close();
-			motorD.close();
-			
-			// Close IR sensor
-			sensorIR.close();
-			
-			// Close touch sensor
-			touch.close();
+			motorL.stop();
+			motorR.stop();
 	}
 	
 	// When bumper is touched, drive backwards, make a left/right turn
@@ -440,18 +419,18 @@ public class RobotMove {
 		
 		// Check whether the random number is left or right
 		// Then proceed to rotate to that direction
-		if (direction == 0) {
+		if (direction == 0)
 			rotate(left);
-		} else
+		else
 			rotate(right);
 		
 		// Move forward
 		moveForward(moveTimer);
 		
 		// Turn the opposite direction of the preceding rotation
-		if (direction == 0) {
+		if (direction == 0)
 			rotate(right);
-		} else 
+		else 
 			rotate(left);
 	}
 }
