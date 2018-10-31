@@ -1,4 +1,4 @@
-package model;
+package model.beaconfinder;
 
 import java.util.Random;
 import lejos.hardware.Button;

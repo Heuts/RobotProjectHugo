@@ -10,13 +10,14 @@ import lejos.hardware.port.Port;
 import lejos.hardware.port.SensorPort;
 import lejos.utility.Delay;
 import model.*;
+import model.beaconfinder.RobotMove;
+import utility.Lcd;
 
 public class RobotLauncher {
 
-	final static String APP1 = "Line follower";
-	final static String APP2 = "Dansen";
-	private Brick brick;
-	private TextLCD display;
+	final static String APP1 = "Line Follower";
+	final static String APP2 = "Find Beacon";
+	final static String APP3 = "Play Tag";
 
 	/*
 	 * Assigning ports
@@ -33,14 +34,12 @@ public class RobotLauncher {
 
 	public RobotLauncher() {
 		super();
-		brick = LocalEV3.get();
-		display = brick.getTextLCD();
 		printWelcome();
 		printMenu();
 	}
 
 	private void printWelcome() {
-		display.drawString("Welkom team Bravo!", 0, 0);
+		Lcd.print(0, "Welkom team Bravo!");
 	}
 
 	/*
@@ -48,38 +47,40 @@ public class RobotLauncher {
 	 * programma gerunned moet worden en roept methode aan
 	 */
 	private void printMenu() {
-		TextLCD display = brick.getTextLCD();
 		
-		display.drawString("Welke app?", 0, 2);
-		display.drawString(APP1+" (UP)", 0, 3);
-		display.drawString(APP2+" (DOWN)", 0, 4);
-		display.drawString("App 3 (RIGHT)", 0, 5);
-		display.drawString("Exit (ESCAPE)", 0, 7);
+		Lcd.print(2, "Welke app?");
+		Lcd.print(3, APP1+" (UP)");
+		Lcd.print(4, APP2+" (DOWN)");
+		Lcd.print(5, APP3+" (RIGHT)");
+		Lcd.print(7, "Exit (ESCAPE)");
 		
 		Button.waitForAnyEvent();
 		if (Button.UP.isDown()) {
 			
-			display.clear();
-			display.refresh();
-			display.drawString(APP1, 0, 1);
+			Lcd.clear();
+			Lcd.print(1, APP1);
 			startApp1();
 			
 			Delay.msDelay(500);
 			
 		}
 		if (Button.DOWN.isDown()) {
-			display.clear();
-			display.drawString(APP2, 0, 1);
+			
+			Lcd.clear();
+			Lcd.print(1, APP2);
+			startApp2();
 			Delay.msDelay(500);
 		}
 		if (Button.RIGHT.isDown()) {
-			display.clear();
-			display.drawString("App 3", 0, 1);
+			
+			Lcd.clear();
+			Lcd.print(1, APP3);
+			
 			Delay.msDelay(500);
 		}
 		if (Button.ESCAPE.isDown()) {
-			display.clear();
-			display.drawString("EXIT", 0, 1);
+			Lcd.clear();
+			Lcd.print(1, "EXIT");
 			Delay.msDelay(500);
 		}
 	}
@@ -91,7 +92,7 @@ public class RobotLauncher {
 
 	// TODO: methode om app2 te starten
 	private void startApp2() {
-		// new object keuzeproject
+		new RobotMove()
 	}
 
 	/*

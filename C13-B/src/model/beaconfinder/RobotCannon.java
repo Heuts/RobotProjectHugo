@@ -1,4 +1,4 @@
-package model;
+package model.beaconfinder;
 
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
