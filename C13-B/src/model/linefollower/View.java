@@ -48,6 +48,8 @@ public class View {
 	public static void printShutdown() {
 		Lcd.clear();
 		Lcd.print(6, "Goodbye!");
+		Delay.msDelay(250);
+		Lcd.clear();
 	}
 
 	public static void printStartCalibration() {
