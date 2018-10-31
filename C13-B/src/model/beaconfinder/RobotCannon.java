@@ -14,11 +14,12 @@ public class RobotCannon {
         fire();
 		resetMotor();
     }
-
+    
     private void resetMotor(){
         cannon.rotate(890);
         cannon.resetTachoCount();
     }       
+
 
     private void fire(){
         cannon.setSpeed(1000);
