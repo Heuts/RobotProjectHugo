@@ -3,7 +3,6 @@ package model.linefollower;
 import lejos.robotics.Color;
 import lejos.utility.Delay;
 import utility.ColorSensor;
-import utility.Lcd;
 
 public class Calibrator {
 

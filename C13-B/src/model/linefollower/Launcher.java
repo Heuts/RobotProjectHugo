@@ -11,26 +11,26 @@ public class Launcher {
 	/*
 	 * The bot has a left and right track with each one motor
 	 */
-    UnregulatedMotor motorL, motorR;
+    private UnregulatedMotor motorL, motorR;
+
     
     /*
      * The bot drives on two color sensors, left and right
      */
-    ColorSensor colorSensorL, colorSensorR;
+    private ColorSensor colorSensorL, colorSensorR;
+    
     
     /*
-     * colorFinish is an array which consists of two arrays
-     * 		first array with size == amount of sensors
-     * 		second array with size == 3
-     * 			values for: Red Green Blue
+     * colorFinish is an array with R G B values from the finishline
      */
-//    private int[][] colorFinish;
-    int[] colorFinishMax, colorFinishMin;
+    private int[] colorFinishMax, colorFinishMin;
+
     
     /*
-     * absolute RGB value per sensor
+     * absolute RGB value per sensor used for driving
      */
-    int colorBackgroundCumulativeL, colorBackgroundCumulativeR;
+    private int colorBackgroundCumulativeL, colorBackgroundCumulativeR;
+    
     
     /*
      * Calibration values
@@ -44,44 +44,24 @@ public class Launcher {
 	/*
 	 * Create calibrator to handle calibrations
 	 */
-    Calibrator calibrator = new Calibrator(CALIBRATION_CYCLES,
-    									   CALIBRATION_DELAY,
-    									   CALIBRATION_FINISH_MARGIN_ABS, 
-    									   CALIBRATION_FINISH_MARGIN_REL);
-	
-	
-    /*
-     * tijdelijke functie die weggaat bij integratie in project, zal 
-     * de launch oproepen die de constructor zal worden
-     */
-    public static void main(String[] args)
-    {
-    	
-    	Port LEFT_COLOR = SensorPort.S1,
-				  RIGHT_COLOR = SensorPort.S2,
-				  LEFT_MOTOR = MotorPort.A,
-				  RIGHT_MOTOR = MotorPort.D;
+    private Calibrator calibrator;
 
-    	Launcher launcher = new Launcher(LEFT_MOTOR, RIGHT_MOTOR, LEFT_COLOR, RIGHT_COLOR);
-    }
+
     
+	/*
+	 * Constructor, requires port allocation to start program    
+	 */
     public Launcher(Port leftMotor, Port rightMotor, Port leftColorSensor, Port rightColorSensor) {
     	
-    	/*
-    	 * Allocation of hardware to variables
-    	 */
     	setPorts(leftMotor, rightMotor, leftColorSensor, rightColorSensor);
     	
     	View.printTitle();
-    	
-    	/*
-    	 * Prepare sensors
-    	 */
     	View.printBooting();
+    	
     	prepareRGBSensor(colorSensorL);
     	prepareRGBSensor(colorSensorR);
+
     	View.printBootingReady();
-    	
     	
 		/*
 		 * Start calibration
@@ -89,8 +69,9 @@ public class Launcher {
 		View.alert();
 		View.printStartCalibration();
         View.waitAny();
+        
     	startCalibration();
-//    	printCalibration();
+    	
     	View.alert();
     	View.waitAny();
 
@@ -103,7 +84,6 @@ public class Launcher {
     	/*
     	 * End program
     	 */
-
         View.alert();
         View.waitAny();
     	View.printShutdown();
@@ -113,6 +93,10 @@ public class Launcher {
 
     /*
      * Allocate appropriate ports received from constructor
+     * @Parameter: Port, Port, Port, Port
+     * 				Ports required to allocate sensors and motors
+     * @Return: void
+     * 				Class variables are allocated
      */
 	private void setPorts(Port leftMotor, Port rightMotor, Port leftColorSensor, Port rightColorSensor) {
 		colorSensorR = new ColorSensor(rightColorSensor, "colorSensorR");
@@ -123,6 +107,10 @@ public class Launcher {
 	
 	/*
 	 * Assign RGB mode to a sensor and turn on appropriate flood light
+	 * @Parameter: ColorSensor
+	 * 					sensor that needs to be prepared
+	 * @Return: void
+	 * 				sensor object is set
 	 */
 	private void prepareRGBSensor(ColorSensor colorSensor) {
         colorSensor.setRGBMode();
@@ -131,16 +119,29 @@ public class Launcher {
 	}
     
 	/*
-	 * handle different calibrations
+	 * handle all required calibrations
 	 */
 	private void startCalibration() {
+	    
+	    calibrator = new Calibrator(CALIBRATION_CYCLES,
+	    							CALIBRATION_DELAY,
+	    							CALIBRATION_FINISH_MARGIN_ABS, 
+	    							CALIBRATION_FINISH_MARGIN_REL);
+		
+		
         View.prepareUserForCalibration("Finish");
         calibrator.calibrateSurface(colorSensorL, "finish");
         calibrator.calibrateSurface(colorSensorR, "finish");
         calibrator.calibrateFinishMinMax(colorSensorL);
         calibrator.calibrateFinishMinMax(colorSensorR);
         
-        //maakt niet uit dat het L is want finish momenteel hard coded
+        /*
+         * Allocate finish color range to RGB int arrays
+         * currently finish range (min max) is hardcoded,
+         * for this reason we are only pulling in the range of colorSensorL
+         * as L and R are the same
+         * TODO: Optimalization of finishrange calibration
+         */
         colorFinishMax = calibrator.colorManager.getSensor(colorSensorL.getName()).getMap("finishMax").getRgb();
         colorFinishMin = calibrator.colorManager.getSensor(colorSensorL.getName()).getMap("finishMin").getRgb();
         View.CalibrationSuccess();
@@ -163,4 +164,36 @@ public class Launcher {
     	colorSensorR.close();
 	}
 
+    UnregulatedMotor getMotor(char motor) {
+    	if(motor == 'L')
+    		return motorL;
+    	else
+    		return motorR;
+    }
+	
+	ColorSensor getColorSensor(char sensor) {
+	    if(sensor == 'L')
+	    	return colorSensorL;
+	    else
+	    	return colorSensorR;
+	}
+	
+    int[] getColorFinishMax() {
+    	return colorFinishMax;
+    }
+    
+    int[] getColorFinishMin() {
+    	return colorFinishMin;
+    }
+    
+    int colorBackgroundCumulative(char sensor) {
+    	if(sensor == 'L') {
+    		return colorBackgroundCumulativeL;
+    	} else
+    		return colorBackgroundCumulativeR;
+    }
+
+	public Calibrator getCalibrator() {
+		return calibrator;
+	}
 }

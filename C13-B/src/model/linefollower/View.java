@@ -3,8 +3,8 @@ package model.linefollower;
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
 import lejos.utility.Delay;
-import model.Stopwatch;
 import utility.Lcd;
+import utility.Stopwatch;
 
 public class View {
 

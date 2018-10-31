@@ -4,8 +4,8 @@ import lejos.hardware.Button;
 import lejos.hardware.motor.UnregulatedMotor;
 import lejos.robotics.Color;
 import lejos.utility.Delay;
-import model.Stopwatch;
 import utility.ColorSensor;
+import utility.Stopwatch;
 
 public class Drive {
 	
@@ -35,13 +35,13 @@ public class Drive {
     private int colorBackgroundCumulativeL, colorBackgroundCumulativeR;
 	
 	public Drive(Launcher launcher) {
-		this.motorL = launcher.motorL;
-		this.motorR = launcher.motorR;
-		this.colorSensorL = launcher.colorSensorL;
-		this.colorSensorR = launcher.colorSensorR;
-		this.colorFinishMin = launcher.colorFinishMin;
-		this.colorFinishMax = launcher.colorFinishMax;
-		this.calibrator = launcher.calibrator;
+		this.motorL = launcher.getMotor('L');
+		this.motorR = launcher.getMotor('R');
+		this.colorSensorL = launcher.getColorSensor('L');
+		this.colorSensorR = launcher.getColorSensor('R');
+		this.colorFinishMin = launcher.getColorFinishMin();
+		this.colorFinishMax = launcher.getColorFinishMax();
+		this.calibrator = launcher.getCalibrator();
 	}
 	
 	void followLine() {
