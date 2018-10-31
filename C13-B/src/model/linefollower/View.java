@@ -97,14 +97,5 @@ public class View {
 		Lcd.print(line, "%c Sensor: %d %d %d", sensor, r, g, b);
 	}
 	
-	public static void loopColor() {
-		for(int i = 0; i < 20; i++) {
-			System.out.println("nummer: " + i);
-			Button.LEDPattern(i);
-			Delay.msDelay(2000);
-		}
-			
-		
-	}
 	
 }

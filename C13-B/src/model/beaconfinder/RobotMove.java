@@ -183,7 +183,7 @@ public class RobotMove {
 				*/
 				if (distance > minShootingDistance && distance < maxShootingDistance && 
 						direction > minShootingDirection && direction < maxShootingDirection) {
-					Button.LEDPattern(5); //red pulse to indicate fire mode
+					Button.LEDPattern(5); // red pulse to indicate fire mode
 					motorL.stop(true);
 					motorR.stop(true);
 					Sound.beepSequenceUp();
