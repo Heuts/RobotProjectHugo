@@ -5,7 +5,6 @@ import utility.TouchSensor;
 import lejos.hardware.Brick;
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
-import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
