@@ -42,7 +42,7 @@ public class View {
 	public static void printFinal(Stopwatch stopwatch) {
 		Lcd.clear();
         Lcd.print(6, "Kirov finished!");
-        Lcd.print(7, "Lap time: %.2f", stopwatch.getElapsedTime()/100);
+        Lcd.print(7, "Lap time: %.2f", stopwatch.getElapsedTime()/1000.0);
 	}
 
 	public static void printShutdown() {
