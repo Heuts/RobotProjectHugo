@@ -51,7 +51,7 @@ public class Drive {
 		boolean running = false;
 		Stopwatch stopwatch = new Stopwatch();
 		
-		driveForward(power-20); //start met rechtdoor rijden tot de start
+		driveForward(power+80); //start met rechtdoor rijden tot de start
 
 		while (Button.ESCAPE.isUp()) {
 			
