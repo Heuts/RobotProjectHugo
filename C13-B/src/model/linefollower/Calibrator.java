@@ -3,6 +3,7 @@ package model.linefollower;
 import lejos.robotics.Color;
 import lejos.utility.Delay;
 import utility.ColorSensor;
+import utility.Lcd;
 
 public class Calibrator {
 
@@ -12,28 +13,28 @@ public class Calibrator {
 	 */
 	private final static int MIN_CYCLES = 1;
 	private final static int DEFAULT_CYCLES = 1;
-	private static int calibrationCycles;
+	private int calibrationCycles;
 	
 	/*
 	 * Absolute margin used to make color of finishline less sensitive
 	 * Default: no margin is applied
 	 */
 	private final static int DEFAULT_FINISH_ABS = 0;
-	private static double calibrationFinishMarginAbs;
+	private double calibrationFinishMarginAbs;
 	
 	/*
 	 * Relative margin used to make color of finishline less sensitive
 	 * Default: no margin is applied
 	 */
 	private final static int DEFAULT_FINISH_REL = 0;
-	private static double calibrationFinishMarginRel;
+	private double calibrationFinishMarginRel;
 	
 	/*
 	 * Delay between calibration cycles
 	 */
 	private final static int MIN_DELAY = 1;
 	private final static int DEFAULT_DELAY = 250;
-	private static int calibrationDelay;
+	private int calibrationDelay;
 	
 	/*
 	 * Calibrated colors are managed in this class
@@ -88,6 +89,7 @@ public class Calibrator {
 	
     /*
      * A scan is made of the surface below the scanners
+     * Add RGB values (int[]) of a color sensor to a surface color map
      * @Param: ColorSensor[]
      * 				array containing the colorsensors
      * 				which require calibration
@@ -97,20 +99,6 @@ public class Calibrator {
      * 					values for: Red Green Blue
      */
 	public void calibrateSurface(ColorSensor colorSensor, String surface) {
-//		int numberOfSensors = colorSensors.length;
-//		int[][] surfaceScan = new int[numberOfSensors][3];
-		
-		/*
-		 * For every sensor, we will run the getAverageRGB method which returns 
-		 * array of average RGB values
-		 */
-//		for(int i = 0; i < numberOfSensors; i++) {
-//			surfaceScan[i] = calcAverageRGB(colorSensors[i]);
-//		}
-		
-//		return surfaceScan;
-		
-		
 		colorManager.setMap(surface, 
 							calcAverageRGB(colorSensor), 
 							colorSensor.getName());
@@ -176,17 +164,17 @@ public class Calibrator {
 
 	public void calibrateFinishMinMax(ColorSensor colorSensor) {
 		
-		int[] finish = colorManager	.getSensor(colorSensor.getName())
+/*		int[] finish = colorManager	.getSensor(colorSensor.getName())
 									.getMap("finish")
 									.getRgb();
 		
-//		int[] finishMax = new int[3];
-//		int[] finishMin = new int[3];
-//		
-//		for(int i = 0; i < finish.length; i++) {
-//			finishMax[i] = (int) (finish[0] *(1+calibrationFinishMarginRel) + calibrationFinishMarginAbs);
-//			finishMin[i] = (int) (finish[0] *(1-calibrationFinishMarginRel) - calibrationFinishMarginAbs);
-//		}
+		int[] finishMax = new int[3];
+		int[] finishMin = new int[3];
+		
+		for(int i = 0; i < finish.length; i++) {
+			finishMax[i] = (int) (finish[0] *(1+calibrationFinishMarginRel) + calibrationFinishMarginAbs);
+			finishMin[i] = (int) (finish[0] *(1-calibrationFinishMarginRel) - calibrationFinishMarginAbs);
+		}*/
 		
 		//voorlopig hardcoded oranje finish en calibratie hierboven commented out
 		int[] finishMax = {80, 50, 99};
@@ -217,4 +205,13 @@ public class Calibrator {
 		}
 		return sum;		
 	}
+	
+	public void printCalibration() {
+		View.printCalibrationResults(
+				colorManager.getSensor("colorSensorL").getMap("finish").getRgb(),
+				colorManager.getSensor("colorSensorR").getMap("finish").getRgb(),
+				colorManager.getSensor("colorSensorL").getMap("background").getRgb(),
+				colorManager.getSensor("colorSensorR").getMap("background").getRgb());
+	}
+	
 }

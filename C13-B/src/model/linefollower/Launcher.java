@@ -1,29 +1,23 @@
 package model.linefollower;
 
-import lejos.hardware.Button;
 import lejos.hardware.motor.*;
 import lejos.hardware.port.*;
 import lejos.robotics.Color;
 import lejos.utility.Delay;
-import model.Stopwatch;
 import utility.ColorSensor;
 import utility.Lcd;
 
 
-//TODO: maak calibratiemethodes generieker, teveel herhaling => calibratie class
-//TODO: berichten op lcd uitlijnen
 public class Launcher {
 	/*
 	 * The bot has a left and right track with each one motor
 	 */
-    private UnregulatedMotor motorL;
-    private UnregulatedMotor motorR;
+    UnregulatedMotor motorL, motorR;
     
     /*
      * The bot drives on two color sensors, left and right
      */
-    private ColorSensor colorSensorL;
-    private ColorSensor colorSensorR;
+    ColorSensor colorSensorL, colorSensorR;
     
     /*
      * colorFinish is an array which consists of two arrays
@@ -32,23 +26,12 @@ public class Launcher {
      * 			values for: Red Green Blue
      */
 //    private int[][] colorFinish;
-    private int[][] colorFinishMax = new int[2][3];
-    private int[][] colorFinishMin = new int[2][3];
-    
-    /*
-     * colorBackground is an array which consists of two arrays
-     * 		first array with size == amount of sensors
-     * 		second array with size == 3
-     * 			values for: Red Green Blue
-     */
-//    private int[][] colorBackground;
+    int[] colorFinishMax, colorFinishMin;
     
     /*
      * absolute RGB value per sensor
      */
-    private int colorBackgroundCumulativeL;
-    private int colorBackgroundCumulativeR;
-    
+    int colorBackgroundCumulativeL, colorBackgroundCumulativeR;
     
     /*
      * Calibration values
@@ -80,12 +63,10 @@ public class Launcher {
 				  LEFT_MOTOR = MotorPort.A,
 				  RIGHT_MOTOR = MotorPort.D;
 
-    	Launcher launcher = new Launcher();
-    	launcher.launch(LEFT_MOTOR, RIGHT_MOTOR, LEFT_COLOR, RIGHT_COLOR);
+    	Launcher launcher = new Launcher(LEFT_MOTOR, RIGHT_MOTOR, LEFT_COLOR, RIGHT_COLOR);
     }
     
-    //TODO: launch zal constructor worden
-    private void launch(Port leftMotor, Port rightMotor, Port leftColorSensor, Port rightColorSensor) {
+    public Launcher(Port leftMotor, Port rightMotor, Port leftColorSensor, Port rightColorSensor) {
     	
     	/*
     	 * Allocation of hardware to variables
@@ -114,11 +95,11 @@ public class Launcher {
     	View.alert();
     	View.waitAny();
 
-    	
     	/*
-    	 * Start follow line 
+    	 * Start driving
     	 */
-    	followLine();
+    	Drive drive = new Drive(this);
+    	drive.followLine();
     	
     	/*
     	 * End program
@@ -128,6 +109,7 @@ public class Launcher {
         View.waitAny();
     	View.printShutdown();
     	closeSensors();
+    	Delay.msDelay(250);
 	}
 
     /*
@@ -158,6 +140,10 @@ public class Launcher {
         calibrator.calibrateSurface(colorSensorR, "finish");
         calibrator.calibrateFinishMinMax(colorSensorL);
         calibrator.calibrateFinishMinMax(colorSensorR);
+        
+        //maakt niet uit dat het L is want finish momenteel hard coded
+        colorFinishMax = calibrator.colorManager.getSensor(colorSensorL.getName()).getMap("finishMax").getRgb();
+        colorFinishMin = calibrator.colorManager.getSensor(colorSensorL.getName()).getMap("finishMin").getRgb();
         View.CalibrationSuccess();
         
         View.prepareUserForCalibration("Background");
@@ -167,135 +153,8 @@ public class Launcher {
         colorBackgroundCumulativeL = calibrator.calculateCumulRgbValue(colorSensorL, "background");
         colorBackgroundCumulativeL = calibrator.calculateCumulRgbValue(colorSensorR, "background");
         View.CalibrationSuccess();
-	}
-	
-	
-	private void printCalibration() {
-        Lcd.clear();
-        Lcd.print(1, "Calibration results:");
-        Lcd.print(2, "FL: %d %d %d", colorFinish[0][0], colorFinish[0][1], colorFinish[0][2]);
-        Lcd.print(3, "FR: %d %d %d",  colorFinish[1][0], colorFinish[1][1], colorFinish[1][2]);
-        Lcd.print(6, "BL: %d %d %d", colorBackground[0][0], colorBackground[0][1], colorBackground[0][2]);
-        Lcd.print(7, "BR: %d %d %d", colorBackground[1][0], colorBackground[1][1], colorBackground[1][2]);
-	}
-
-	private void followLine() {
-    	
-		int power = 50;
-		
-		boolean running = false;
-		Stopwatch stopwatch = new Stopwatch();
-		
-		driveForward(power);
-
-    	
-		while (Button.ESCAPE.isUp()) {
-			
-			
-	    	int[] RgbPositionL = detectPosition(colorSensorL);
-	    	int[] RgbPositionR = detectPosition(colorSensorR);
-	    	
-	    	int positionL = calibrator.calculateCumulRgbValue(RgbPositionL);
-	    	int positionR = calibrator.calculateCumulRgbValue(RgbPositionR);
-	    	
-	    	if(isFinish(RgbPositionL, RgbPositionR)) {
-	    		View.alert();
-	    		if(running) {
-	    			break;
-	    		} else {
-	    			running = true;
-	    			stopwatch.start();
-	    		}
-	    	}
-	    	Lcd.clear(8);
-	    	Lcd.print(8, "%d", stopwatch.getElapsedTimeSecs());
-	    	Lcd.print(4, "L Sensor: %d %d %d", RgbPositionL[0], RgbPositionL[1], RgbPositionL[2]);
-	    	Lcd.print(5, "L Finish: %d %d %d", colorFinish[0][0], colorFinish[0][1], colorFinish[0][2]);
-	    	
-	    	//als hij naar rechts afwijkt
-	    	//draai links licht
-	    	if(positionL < colorBackgroundCumulativeL) {
-	    		motorR.forward();
-	    		motorR.setPower(power);
-	    		motorL.backward();
-	    		motorL.setPower(power/2);
-	    	}
-	    	
-	    	//als linkersensor boven zwarte lijn is
-	    	//blijf naar links draaien
-	    	while(positionL < 140 && Button.ESCAPE.isUp()) {
-	    		positionL = calibrator.calculateCumulRgbValue(detectPosition(colorSensorL));
-	    		motorR.forward();
-	    		motorR.setPower(power+20+15);
-	    		motorL.backward();
-	    		motorL.setPower(power+20);
-	    	}
-	    	
-	    	positionR = calibrator.calculateCumulRgbValue(detectPosition(colorSensorR));
-	    	Lcd.print(6, "R Sensor: %d %d %d", RgbPositionR[0], RgbPositionR[1], RgbPositionR[2]);
-	    	Lcd.print(7, "R Finish: %d %d %d", colorFinish[1][0], colorFinish[1][1], colorFinish[1][2]);
-	    	
-	    	//als rechtersensor grijzer wordt
-	    	//draai naar links
-	    	if(positionR < colorBackgroundCumulativeR) {
-	    		motorL.forward();
-	    		motorL.setPower(power + 10);
-	    		motorR.backward();
-	    		motorR.setPower(power/2);
-	    	}
-
-	    	//als rechtersensor boven zwart is
-	    	//blijf naar rechts draaien
-	    	while(positionR < 140  && Button.ESCAPE.isUp()) {
-	    		positionR = calibrator.calculateCumulRgbValue(detectPosition(colorSensorR));
-	    		motorL.forward();
-	    		motorL.setPower(power+20+20); //sterker om te zwakkere motor te corrigeren
-	    		motorR.backward();
-	    		motorR.setPower(power+20); //sterker om zwakkere motor te corrigeren
-	    	}
-	    	
-	    	//rij rechtdoor als beide sensors wit genoeg zijn
-	    	if(positionL > 100 && positionR > 100) {
-	    		driveForward(power+10);
-	    	}
-	    		
-	    	
-		}
-		
-    	//stop motors -- is buiten de while loop die stopt bij escape
-		stopMotor();
- 
-    }
-	
-	private void stopMotor() {
-	   	motorL.stop();
-    	motorR.stop();
-	}
-
-	private void driveForward(int power) {
-		motorL.forward();
-		motorR.forward();
-		motorL.setPower(power);
-		motorR.setPower(power);
-	}
-
-//TODO: loopjes maken evt positionL en R in array steken als het helpt
-	private boolean isFinish(int[] positionL, int[] positionR) {
-		
-		if(positionL[0] > colorFinishMin[0][0] && positionL[0] < colorFinishMax[0][0] &&
-		   positionL[1] > colorFinishMin[0][1] && positionL[1] < colorFinishMax[0][1] &&
-		   positionL[2] > colorFinishMin[0][2] && positionL[2] < colorFinishMax[0][2]) return true;
-		
-		if(positionR[0] > colorFinishMin[1][0] && positionR[0] < colorFinishMax[1][0] &&
-		   positionR[1] > colorFinishMin[1][1] && positionR[1] < colorFinishMax[1][1] &&
-		   positionR[2] > colorFinishMin[1][2] && positionR[2] < colorFinishMax[1][2]) return true;
-		
-		return false;
-	}
-
-	private int[] detectPosition(ColorSensor colorSensor) {
-		Color rgb = colorSensor.getColor();
-		return new int[] {rgb.getRed(), rgb.getGreen(), rgb.getBlue()};
+        
+        calibrator.printCalibration();
 	}
 	
 	private void closeSensors() {
