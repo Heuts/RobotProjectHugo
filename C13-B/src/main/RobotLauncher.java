@@ -6,7 +6,6 @@ import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
 import lejos.hardware.port.SensorPort;
 import lejos.utility.Delay;
-import model.beaconfinder.RobotMove;
 import utility.Lcd;
 
 public class RobotLauncher {

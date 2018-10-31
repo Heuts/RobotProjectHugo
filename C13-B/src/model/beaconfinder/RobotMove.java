@@ -23,16 +23,16 @@ public class RobotMove {
 	private TouchSensor touch;
 	private EV3IRSensor sensorIR;
 	
+	SensorMode seek;
+	float[] sample;
+	
 //    static TouchSensor touch = new TouchSensor(SensorPort.S3);
 //    static EV3IRSensor sensorIR = new EV3IRSensor(SensorPort.S4);
     
-    // Declare that the sensor uses seek mode to find the beacon
-    // Declare that samples of the sensor can be taken and stored as a float
-	SensorMode seek = sensorIR.getSeekMode();
-	float[] sample = new float[seek.sampleSize()];
+
 	
 	// Declare a cannon object to use
-	RobotCannon cannon = new RobotCannon();
+	RobotCannon cannon; 
 	
 	// The motors are not equally powerful
 	// Therefore motorA is running at a slower maximum speed
@@ -41,12 +41,14 @@ public class RobotMove {
     
     
     // Setup and start of programme
-    public void run(Launcher launcher) {
+    public RobotMove(Launcher launcher) {
 		this.motorL = launcher.getMotor('L');
 		this.motorR = launcher.getMotor('R');
 		this.sensorIR = launcher.getIR();
 		this.touch = launcher.getTouch();
+		this.cannon = launcher.getCannon();
 
+		setSensorMode();
     	
 		Lcd.print(3, "Start programme");
 		
@@ -58,7 +60,15 @@ public class RobotMove {
         basicProgramme();
     }
     
-    // Main programme
+    private void setSensorMode() {
+        // Declare that the sensor uses seek mode to find the beacon
+        // Declare that samples of the sensor can be taken and stored as a float
+    	seek = sensorIR.getSeekMode();
+    	sample = new float[seek.sampleSize()];
+		
+	}
+
+	// Main programme
     // Loops until the target is found and has been shot
     public void basicProgramme() {
     	

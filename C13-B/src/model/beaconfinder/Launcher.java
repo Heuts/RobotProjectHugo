@@ -8,6 +8,7 @@ import utility.TouchSensor;
 
 public class Launcher {
 	
+	
 	// Create instances of the motors and cannon
 	private EV3LargeRegulatedMotor motorL, motorR;
 	private EV3MediumRegulatedMotor motorCn;
@@ -15,7 +16,7 @@ public class Launcher {
 	// Create instance of the infrared and touch sensor
 	private EV3IRSensor IRSensor;
 	private TouchSensor touch;
-	
+		
 	public Launcher(Port motorL, Port motorR, Port motorCn, Port IRSensor, Port touchSensor) {
     	/*
     	 * Allocation of hardware to variables
@@ -23,8 +24,7 @@ public class Launcher {
     	setPorts(motorL, motorR, motorCn, IRSensor, touchSensor);
     	
     	// Run an instance of locating and approaching the beacon
-    	RobotMove findBeacon = new RobotMove();
-    	findBeacon.run(this);
+    	new RobotMove(this);
     	closePorts();
 	}
 	
@@ -42,6 +42,7 @@ public class Launcher {
 		// Close the motor ports
 		motorR.close();
 		motorL.close();
+		motorCn.close();
 		
 		// Close IR sensor
 		IRSensor.close();
@@ -63,6 +64,10 @@ public class Launcher {
     
     EV3IRSensor getIR() {
     	return IRSensor;
+    }
+    
+    RobotCannon getCannon() {
+    	return new RobotCannon(motorCn);
     }
 
 }

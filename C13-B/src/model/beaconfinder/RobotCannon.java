@@ -1,15 +1,13 @@
 package model.beaconfinder;
 
-import lejos.hardware.port.MotorPort;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
-
 
 public class RobotCannon {
 	
-	EV3MediumRegulatedMotor Cannon;
+	EV3MediumRegulatedMotor cannon;
 	
-	public RobotCannon() {
-        Cannon = new EV3MediumRegulatedMotor(MotorPort.C);
+	public RobotCannon(EV3MediumRegulatedMotor cannon) {
+        this.cannon = cannon;
 	}
     
     public void CannonFire() {
@@ -18,17 +16,13 @@ public class RobotCannon {
     }
 
     private void resetMotor(){
-        Cannon.rotate(890);
-        Cannon.resetTachoCount();
-     }       
+        cannon.rotate(890);
+        cannon.resetTachoCount();
+    }       
 
     private void fire(){
-        Cannon.setSpeed(1000);
-        Cannon.setAcceleration(6000);
-    	Cannon.rotate(190);
-
+        cannon.setSpeed(1000);
+        cannon.setAcceleration(6000);
+    	cannon.rotate(190);
     }      
-
-	
-
 }
