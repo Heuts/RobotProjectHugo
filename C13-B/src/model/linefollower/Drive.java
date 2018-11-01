@@ -51,7 +51,7 @@ public class Drive {
 		boolean running = false;
 		Stopwatch stopwatch = new Stopwatch();
 		
-		driveForward(power);
+		driveForward(power+80); //start met rechtdoor rijden tot de start
 
 		while (Button.ESCAPE.isUp()) {
 			
@@ -71,6 +71,9 @@ public class Drive {
 	    			stopwatch.start();
 	    		}
 	    	}
+	    	
+	    	if(!running) continue;
+	    	
 	    	View.printElapsedTime(stopwatch);
 	    	View.printRgbPosition('L', RgbPositionL[0], RgbPositionL[1], RgbPositionL[2]);
 	    	

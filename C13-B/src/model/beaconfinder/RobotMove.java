@@ -58,6 +58,13 @@ public class RobotMove {
         
         // Run main method
         basicProgramme();
+        
+        Sound.beepSequenceUp();  
+        Sound.beepSequenceUp();  
+        Sound.beepSequenceUp();
+        Button.LEDPattern(2);
+        Lcd.print(3, "Target destroyed!");
+        Button.waitForAnyPress();
     }
     
     private void setSensorMode() {
@@ -79,7 +86,7 @@ public class RobotMove {
     	// If target is NOT destroyed, or the button is NOT pressed
     	// Continue the loop in perpetuity
     	while (!targetDestroyed || !Button.ESCAPE.isUp()) {
-    		
+    		Button.LEDPattern(9); //oranje heartbeat bij zoeken
     		// Move the robot forward for x seconds, the x is determined in milliseconds
     		moveForward(500);
     		
@@ -116,7 +123,7 @@ public class RobotMove {
 		 * Shoot at it when in sight
 		 */
     	if (direction > minSightValue && direction < maxSightValue) {
-    		
+    		Button.LEDPattern(1); //green light to indicate target was found and closing in on target
     		// Set the shooting distance required for the robot
     		// The range is set to be between 0 and 30
     		int minShootingDistance = 0;
@@ -176,6 +183,7 @@ public class RobotMove {
 				*/
 				if (distance > minShootingDistance && distance < maxShootingDistance && 
 						direction > minShootingDirection && direction < maxShootingDirection) {
+					Button.LEDPattern(5); // red pulse to indicate fire mode
 					motorL.stop(true);
 					motorR.stop(true);
 					Sound.beepSequenceUp();
@@ -393,7 +401,7 @@ public class RobotMove {
 			Lcd.clear();
 			
 			// Print the current location of the programme
-			Lcd.print(4, "Now in robotStop");
+//			Lcd.print(4, "Now in robotStop");
 			
 			// Halt usage of motors
 			motorL.stop();
