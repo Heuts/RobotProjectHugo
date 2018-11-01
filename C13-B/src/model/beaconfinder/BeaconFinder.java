@@ -150,11 +150,11 @@ public class BeaconFinder {
     	
     		/*
     		 * Set the range wherein the cannon is allowed to be shot
-    		 * The range is set to be between -10 and 10, thus less than the
+    		 * The range is set to be between -7 and 7, thus less than the
     		 * maximum range capable of the sensor (-25 and 25 respectively)
     		 */
-    		int minShootingDirection = -10;
-    		int maxShootingDirection = 10;
+    		int minShootingDirection = -7;
+    		int maxShootingDirection = 7;
     		
     		/*
     		 * Set the value of 0 equal to 0 degrees    		
