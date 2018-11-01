@@ -6,5 +6,4 @@ public class Kirov {
 		
 		new RobotLauncher();
 	}
-
 }

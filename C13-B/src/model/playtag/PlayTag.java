@@ -21,9 +21,9 @@ import lejos.utility.Delay;
 
 public class PlayTag {
 	/*
-	 * voor deze class worden 5 poorten gebruikt: 2 motoren voor de aandrijving
-	 * van de rupsbanden, 2 touchsensors voor het spelen van tikkertje en 1
-	 * infrarood voor het detecteren van de beacon
+	 * voor deze class worden 5 poorten gebruikt: 2 motoren voor de aandrijving van
+	 * de rupsbanden, 2 touchsensors voor het spelen van tikkertje en 1 infrarood
+	 * voor het detecteren van de beacon
 	 */
 	EV3LargeRegulatedMotor motorRight;
 	EV3LargeRegulatedMotor motorLeft;
@@ -34,19 +34,12 @@ public class PlayTag {
 	SensorMode infraredSensor;
 	float[] infraredSensorSample;
 
-	final int COMPENSATED_MAX_SPEED = 1000;
-	final int MAX_SPEED = 1000;
+	final int CHASE_SPEED = 1000;
+	final int AVOID_SPEED = 500;
+	final int DETECT_SPEED = 750;
 	boolean tagged = false;
 
 	Brick brick;
-
-	public static void main(String[] args) {
-		// dit gaat weg, komt in main programma
-		Port INFRARED_FRONT = SensorPort.S4, TOUCH_FRONT = SensorPort.S3, TOUCH_BACK = SensorPort.S1,
-				LEFT_MOTOR = MotorPort.A, RIGHT_MOTOR = MotorPort.D;
-
-		new PlayTag(LEFT_MOTOR, RIGHT_MOTOR, TOUCH_FRONT, TOUCH_BACK, INFRARED_FRONT);
-	}
 
 	/*
 	 * dit is de constructor, hier worden de poorten geinitieerd en gaat het
@@ -54,22 +47,22 @@ public class PlayTag {
 	 */
 	public PlayTag(Port leftMotorPort, Port rightMotorPort, Port touchSensorBumperPort, Port touchSensorBackPort,
 			Port infraredSensorFrontPort) {
-		
+
 		motorRight = new EV3LargeRegulatedMotor(rightMotorPort);
 		motorLeft = new EV3LargeRegulatedMotor(leftMotorPort);
 		Bumper = new TouchSensor(touchSensorBumperPort);
 		Back = new TouchSensor(touchSensorBackPort);
 		Infrared = new EV3IRSensor(infraredSensorFrontPort);
-		
+
 		infraredSensor = Infrared.getSeekMode();
 		infraredSensorSample = new float[infraredSensor.sampleSize()];
 
 		View.userInterface();
 		detectBeacon();
 		while (Button.ESCAPE.isUp()) {
-			if (detectBeacon() && tagged == false) {
+			if (detectBeacon() && !tagged) {
 				avoidBeacon();
-			} else if (detectBeacon() && tagged == true) {
+			} else if (detectBeacon() && tagged) {
 				chaseBeacon();
 				break;
 			}
@@ -82,6 +75,9 @@ public class PlayTag {
 		Lcd.clear();
 		Lcd.print(4, "Now in detectBeacon");
 
+		motorRight.setSpeed(DETECT_SPEED);
+		motorLeft.setSpeed(DETECT_SPEED);
+
 		boolean beaconFound = false;
 
 		while (Button.ESCAPE.isUp()) {
@@ -90,8 +86,6 @@ public class PlayTag {
 			Lcd.clear(6);
 			Lcd.print(6, "Direction " + direction);
 
-			motorRight.setSpeed(MAX_SPEED);
-			motorLeft.setSpeed(COMPENSATED_MAX_SPEED);
 			motorRight.backward();
 			motorLeft.forward();
 			if (direction > -25 && direction < 25 && direction != 0) {
@@ -106,7 +100,10 @@ public class PlayTag {
 	public void avoidBeacon() {
 		Lcd.clear();
 		Lcd.print(4, "Now in avoidBeacon");
-		
+
+		motorRight.setSpeed(AVOID_SPEED);
+		motorLeft.setSpeed(AVOID_SPEED);
+
 		while (Button.ESCAPE.isUp()) {
 			infraredSensor.fetchSample(infraredSensorSample, 0);
 			int direction = (int) infraredSensorSample[0];
@@ -114,11 +111,14 @@ public class PlayTag {
 			Lcd.clear(6);
 			Lcd.print(6, "Direction " + direction);
 
-			if (direction > 0) {
+			if (direction > 10) {
 				motorRight.forward();
 				motorLeft.stop(true);
-			} else if (direction < 0) {
+			} else if (direction < -10) {
 				motorRight.stop(true);
+				motorLeft.forward();
+			} else if (direction >= -10 && direction <= 10) {
+				motorRight.forward();
 				motorLeft.forward();
 			}
 			if (Back.isTouched()) {
@@ -132,7 +132,10 @@ public class PlayTag {
 	public void chaseBeacon() {
 		Lcd.clear();
 		Lcd.print(4, "Now in chaseBeacon");
-		
+
+		motorRight.setSpeed(CHASE_SPEED);
+		motorLeft.setSpeed(CHASE_SPEED);
+
 		while (Button.ESCAPE.isUp()) {
 			infraredSensor.fetchSample(infraredSensorSample, 0);
 			int direction = (int) infraredSensorSample[0];
@@ -140,11 +143,14 @@ public class PlayTag {
 			Lcd.clear(6);
 			Lcd.print(6, "Direction " + direction);
 
-			if (direction < 0) {
+			if (direction < -7) {
 				motorRight.forward();
 				motorLeft.stop(true);
-			} else if (direction > 0) {
+			} else if (direction > 7) {
 				motorRight.stop(true);
+				motorLeft.forward();
+			} else if (direction >= -7 && direction <= 7) {
+				motorRight.forward();
 				motorLeft.forward();
 			}
 			if (Bumper.isTouched()) {
