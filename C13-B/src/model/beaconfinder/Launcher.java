@@ -24,7 +24,7 @@ public class Launcher {
     	setPorts(motorL, motorR, motorCn, IRSensor, touchSensor);
     	
     	// Run an instance of locating and approaching the beacon
-    	new RobotMove(this);
+    	new RobotBeaconFinder(this);
     	closePorts();
 	}
 	

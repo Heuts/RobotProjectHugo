@@ -10,14 +10,10 @@ import lejos.utility.Delay;
 import utility.Lcd;
 import utility.TouchSensor;
 
-public class RobotMove {
+public class RobotBeaconFinder {
 	
 	// Declare the motors in use for movement by the programme
 	private EV3LargeRegulatedMotor motorL, motorR;
-
-//    static EV3LargeRegulatedMotor motorA = new EV3LargeRegulatedMotor(MotorPort.A);
-//    static EV3LargeRegulatedMotor motorD = new EV3LargeRegulatedMotor(MotorPort.D);
-    
 
     // Declare the sensors in use by the programme
 	private TouchSensor touch;
@@ -26,28 +22,31 @@ public class RobotMove {
 	SensorMode seek;
 	float[] sample;
 	
-//    static TouchSensor touch = new TouchSensor(SensorPort.S3);
-//    static EV3IRSensor sensorIR = new EV3IRSensor(SensorPort.S4);
-    
-
-	
-	// Declare a cannon object to use
+	// Declare a cannon object to use.
 	RobotCannon cannon; 
 	
-	// The motors are not equally powerful
-	// Therefore motorA is running at a slower maximum speed
+	/* 
+	 * The motors are not equally powerful
+	 * Therefore motorA is running at a slower maximum speed.
+	 */
     final int COMPENSATED_MAX_SPEED = 686;
     final int MAX_SPEED = 700;
     
     
     // Setup and start of programme
-    public RobotMove(Launcher launcher) {
+    public RobotBeaconFinder(Launcher launcher) {
+    	/*
+    	 * Retrieve the sensor and motor slots from the launcher
+    	 */
 		this.motorL = launcher.getMotor('L');
 		this.motorR = launcher.getMotor('R');
 		this.sensorIR = launcher.getIR();
 		this.touch = launcher.getTouch();
 		this.cannon = launcher.getCannon();
-
+		
+		/*
+		 *  Set the mode of the infrared sensor to seeking
+		 */
 		setSensorMode();
     	
 		Lcd.print(3, "Start programme");
@@ -68,25 +67,33 @@ public class RobotMove {
     }
     
     private void setSensorMode() {
-        // Declare that the sensor uses seek mode to find the beacon
-        // Declare that samples of the sensor can be taken and stored as a float
+        /*
+         *  Declare that the sensor uses seek mode to find the beacon
+         *  Declare that samples of the sensor can be taken and stored as a float
+         */
     	seek = sensorIR.getSeekMode();
     	sample = new float[seek.sampleSize()];
 		
 	}
 
-	// Main programme
-    // Loops until the target is found and has been shot
-    public void basicProgramme() {
-    	
-    	// Declare and initialise boolean for argument
-    	// (Target is NOT destroyed)
+	/*
+	 * Main programme
+	 * Loops until the target is found and has been shot
+	 */
+    public void basicProgramme() {	
+    	/* 
+    	 * Declare and initialise boolean for argument
+    	 * (Target is NOT destroyed)
+    	*/
     	boolean targetDestroyed = false;
     	
-    	// If target is NOT destroyed, or the button is NOT pressed
-    	// Continue the loop in perpetuity
-    	while (!targetDestroyed || !Button.ESCAPE.isUp()) {
-    		Button.LEDPattern(9); //oranje heartbeat bij zoeken
+    	/* 
+    	 * If target is NOT destroyed, or the button is NOT pressed
+    	 * Continue the loop in perpetuity
+    	*/
+    	while (!targetDestroyed || (Button.ESCAPE.isUp() && !targetDestroyed)) {
+    		// Orange heart beat when in search mode
+    		Button.LEDPattern(9); 
     		// Move the robot forward for x seconds, the x is determined in milliseconds
     		moveForward(500);
     		
@@ -102,12 +109,16 @@ public class RobotMove {
     
     // 
     public boolean followBeacon() {
-    	// Declare and intialise whether the target is destroyed
-    	// The target is initialised as NOT destroyed
+    	/* 
+    	 * Declare and intialise whether the target is destroyed
+    	 * The target is initialised as NOT destroyed
+    	 */ 
     	boolean isDestroyed = false;
     	
-    	// The minimum and maximum sight vision of the sensor 
-    	// is between the values of -25 and 25
+    	/*
+    	 * The minimum and maximum sight vision of the sensor.
+    	 * is between the values of -25 and 25
+    	*/ 
     	int minSightValue = -25;
     	int maxSightValue = 25;
     	
@@ -124,26 +135,42 @@ public class RobotMove {
 		 */
     	if (direction > minSightValue && direction < maxSightValue) {
     		Button.LEDPattern(1); //green light to indicate target was found and closing in on target
-    		// Set the shooting distance required for the robot
-    		// The range is set to be between 0 and 30
-    		int minShootingDistance = 0;
-    		int maxShootingDistance = 30;
+    		/* 
+    		 * Set the shooting distance required for the robot
+    		 * The range is set to be between 1 and 25
+    		 */
+    		int minShootingDistance = 1;
+    		int maxShootingDistance = 25;
     		
     		/*
+    		 * This value equals the maximum range of the robot
+    		 * Its detection range is between 0 and 100
+    		 */
+    		int loseDistance = 100;
+    	
+    		/*
     		 * Set the range wherein the cannon is allowed to be shot
-    		 * The range is set to be between -15 and 15, thus less than the
+    		 * The range is set to be between -10 and 10, thus less than the
     		 * maximum range capable of the sensor (-25 and 25 respectively)
     		 */
-    		int minShootingDirection = -15;
-    		int maxShootingDirection = 15;
+    		int minShootingDirection = -10;
+    		int maxShootingDirection = 10;
+    		
+    		/*
+    		 * Set the value of 0 equal to 0 degrees    		
+    		 * When direction is 0, go straight ahead 
+    		 * If it's a negative number go RIGHT
+    		 * If it's a positive number go LEFT
+    		 */
+    		int straightAhead = 0;
+    		
 	    	 	
 			while (Button.ESCAPE.isUp()) {
-				
 				// Fetch a sample to determine whether the beacon is in sight
 				seek.fetchSample(sample, 0);
 				direction = (int) sample[0];
 				distance = (int) sample[1];
-				
+
 				// Clear LCD
 				Lcd.clear();
 				
@@ -151,51 +178,65 @@ public class RobotMove {
 				Lcd.print(2, "Direction: " + direction);
 				Lcd.print(4, "Distance: " + distance);
 				
-				// Check whether the beacon is on the right of the sensor
-				// If so, start the left motor to adjust the angle
-				if (direction > 0) {
+				/* 
+				 * Check whether the beacon is on the right of the sensor
+				 * If so, start the left motor to adjust the angle
+				*/ 
+				if (direction > straightAhead) {
 					motorL.forward();
 					motorR.stop(true);
 					
 					// If while steering the bumper is touched activate the bumper method
-					if (touch.isTouched())
+					if (touch.isTouched()) {
 						robotBumper();
-					
-				// Check whether the beacon is on the left of the sensor
-				// If so, start the right motor to adjust the angle
-				} else if (direction < 0) {
+					}
+				/* 
+				 * Check whether the beacon is on the left of the sensor
+				 * If so, start the right motor to adjust the angle
+				 */
+				} else if (direction < straightAhead) {
 					motorL.stop(true);
 					motorR.forward();
 					
 					// If while steering the bumper is touched activate the bumper method
-					if (touch.isTouched())
+					if (touch.isTouched()) {
 						robotBumper();
-				
-				// If the distance of the beacon is in range of the integer, 
-				// move forward with maximum speed for 1 millisecond
-				} else if (distance < Integer.MAX_VALUE)
+					}
+				/*
+				 *  If the distance of the beacon is in range of the integer
+				 *  move forward with maximum speed for 1 millisecond
+				 */
+				} else if (distance < Integer.MAX_VALUE) {
 					moveForward(1);
+				} else if (distance == Integer.MAX_VALUE || distance == loseDistance) {
+					break;
+				}
 					
 				/* 
-				 * If the distance is between 1 and 29
-				 * AND direction is between -15 and 15
+				 * If the distance is between 1 and 25
+				 * AND direction is between -10 and 10
 				 * Shoot the cannon at the target
 				*/
-				if (distance > minShootingDistance && distance < maxShootingDistance && 
-						direction > minShootingDirection && direction < maxShootingDirection) {
-					Button.LEDPattern(5); // red pulse to indicate fire mode
+				if (distance >= minShootingDistance && distance <= maxShootingDistance && 
+						direction >= minShootingDirection && direction <= maxShootingDirection) {
+					// Red pulse to indicate fire mode
+					Button.LEDPattern(5); 
 					motorL.stop(true);
 					motorR.stop(true);
 					Sound.beepSequenceUp();
 					
 					// Determine how often the cannon should fire a missile
 					int shootAmount = 1;
+					
+					// Fire the cannon the allotted amount
 					for (int shotsFired = 0; shotsFired < shootAmount; shotsFired++) {
 						cannon.CannonFire();
 					}
 					
-					// After the robot has shot at the target
-					// it is considered as destroyed
+					/* 
+					 * After the robot has shot at the target
+					 * it is considered as destroyed
+					 */
 					isDestroyed = true;
 					
 					// Leave the loop
@@ -212,8 +253,10 @@ public class RobotMove {
     	return isDestroyed;
     }
     
-	// Move robot backwards with maximum speed for a set amount of 
-    // time in milliseconds (determined when the method is called)
+	/* 
+	 * Move robot backwards with maximum speed for a set amount of
+	 * time in milliseconds (determined when the method is called)
+    */
 	public void moveBackward(int time) {
 	        motorL.setSpeed(COMPENSATED_MAX_SPEED);
 	        motorR.setSpeed(MAX_SPEED);
@@ -222,16 +265,22 @@ public class RobotMove {
 			Delay.msDelay(time);
 	}
 	
-	// Move robot forwards with maximum speed for a set amount of 
-    // time in milliseconds (determined when the method is called)
+	/* 
+	 * Move robot forwards with maximum speed for a set amount of
+	 * time in milliseconds (determined when the method is called)
+	 */
 	public void moveForward(int time) {
 		
-		// Declare and initialise that the 
-		// bumper starts at NOT being touched
+		/* 
+		 * Declare and initialise that the
+		 * bumper starts at NOT being touched
+		*/
 		boolean isBumped = false;
 		
-		// Declare the secondary timer that counts to the time
-		// the robot was declared to move forward
+		/* 
+		 * Declare the secondary timer that counts to the time
+		 * the robot was declared to move forward
+		*/
 		int secondaryTimer = 0;
 		while (secondaryTimer < time)  {
 			
@@ -243,8 +292,10 @@ public class RobotMove {
 			motorL.forward();
 			motorR.forward();
 			
-			// If during this time the bumper is touched 
-			// initialise that the bumper is touched and leave the loop
+			/*
+			 * If during this time the bumper is touched 
+			 * initialise that the bumper is touched and leave the loop
+			 */
 			if (touch.isTouched()) {
 				isBumped = true;
 				break;
@@ -298,29 +349,37 @@ public class RobotMove {
 			
 			while (secondaryTimer < time)  {
 				
-				// If the degrees/direction is a negative number
-				// The robot makes a LEFT turn
+				/*
+				 *  If the degrees/direction is a negative number
+				 *  The robot makes a LEFT turn
+				 */
 				if (degrees < 0) {
 					
 					// Set the speed of the motors to maximum
 			        motorL.rotate(COMPENSATED_MAX_SPEED, true);
 			        motorR.rotate(MAX_SPEED, true);
 			        
-			        // To make a left turn, motorA requires backward thrust
-			        // and motorD requires forward thrust
+			        /* 
+			         * To make a left turn, motorA requires backward thrust
+			         * and motorD requires forward thrust
+			        */ 
 			        motorL.backward();
 			        motorR.forward();
 			        
-				// If the degrees/direction is a positive number
-				// The robot makes a RIGHT turn
+				/*
+				 * If the degrees/direction is a positive number
+				 * The robot makes a RIGHT turn
+				 */
 				} else if (degrees > 0)  {
 					
 					// Set the speed of the motors to maximum
 			        motorL.rotate(COMPENSATED_MAX_SPEED, true);
 			        motorR.rotate(MAX_SPEED, true);
 			        
-			        // To make a right turn, motorA requires forward thrust
-			        // and motorD requires backwards thrust
+			        /* 
+			         * To make a right turn, motorA requires forward thrust
+			         * and motorD requires backwards thrust
+			         */
 			        motorL.forward();
 			        motorR.backward();
 				}
@@ -355,8 +414,10 @@ public class RobotMove {
 					int direction = (int) sample[0];
 					int distance = (int) sample[1];
 					
-					// Declare and intialise the minimum and and maximum direction
-					// Additionally declare the 0 value that is not allowed
+					/* 
+					 * Declare and intialise the minimum and and maximum direction
+					 * Additionally declare the 0 value that is not allowed
+					*/
 					int minDirection = -25;
 					int maxDirection = 25;
 					int forbiddenDirection = 0;
@@ -372,8 +433,10 @@ public class RobotMove {
 			        motorL.setSpeed(speedRotate);
 			        motorR.setSpeed(speedRotate);
 			        
-			        // To make a left turn, motorA requires backward thrust
-			        // and motorD requires forward thrust
+			        /* 
+			         * To make a left turn, motorA requires backward thrust
+			         * and motorD requires forward thrust
+			         */
 			        motorL.backward();
 			        motorR.forward();
 			        
@@ -399,17 +462,16 @@ public class RobotMove {
 	public void robotStop() {
 			// Clear LCD
 			Lcd.clear();
-			
-			// Print the current location of the programme
-//			Lcd.print(4, "Now in robotStop");
-			
+					
 			// Halt usage of motors
 			motorL.stop();
 			motorR.stop();
 	}
 	
-	// When bumper is touched, drive backwards, make a left/right turn
-	// then drive forwards and have the opposite corresponding left/right turn
+	/* 
+	 * When bumper is touched, drive backwards, make a left/right turn
+	 * then drive forwards and have the opposite corresponding left/right turn
+	*/
 	public void robotBumper() {
 		
 		// Declare and initialise the degrees of the left and right turn
@@ -430,13 +492,17 @@ public class RobotMove {
         // Move backwards
 		moveBackward(moveTimer);
 		
-		// Choose left or right through a random number
-		// The random number is either 0 or 1
+		/* 
+		 * Choose left or right through a random number
+		 * The random number is either 0 or 1
+		*/
 		Random randomizer = new Random();
 		int direction = randomizer.nextInt(2);
 		
-		// Check whether the random number is left or right
-		// Then proceed to rotate to that direction
+		/* 
+		 * Check whether the random number is left or right
+		 * Then proceed to rotate to that direction
+		 */
 		if (direction == 0)
 			rotate(left);
 		else
