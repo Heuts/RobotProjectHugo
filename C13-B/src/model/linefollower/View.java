@@ -63,7 +63,7 @@ public class View extends model.View {
 	public static void printFinal(Stopwatch stopwatch) {
 		Lcd.clear();
         Lcd.print(6, "Kirov finished!");
-        Lcd.print(7, "Lap time: %.2f", (stopwatch.getElapsedTime()/1000.0)-1);
+        Lcd.print(7, "Lap time: %.2f", (stopwatch.getElapsedTime()/1000.0));
 	}
 
 	/**

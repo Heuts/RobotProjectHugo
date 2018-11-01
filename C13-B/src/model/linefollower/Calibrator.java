@@ -6,7 +6,7 @@ import utility.ColorSensor;
 
 public class Calibrator {
 
-	/*
+	/**
 	 * Amount of calibration cycles used when calibrating
 	 * Default: one sample/scan, less is not possible
 	 */
@@ -14,34 +14,34 @@ public class Calibrator {
 	private final static int DEFAULT_CYCLES = 1;
 	private int calibrationCycles;
 	
-	/*
+	/**
 	 * Absolute margin used to make color of finishline less sensitive
 	 * Default: no margin is applied
 	 */
 	private final static int DEFAULT_FINISH_ABS = 0;
 	private double calibrationFinishMarginAbs;
 	
-	/*
+	/**
 	 * Relative margin used to make color of finishline less sensitive
 	 * Default: no margin is applied
 	 */
 	private final static int DEFAULT_FINISH_REL = 0;
 	private double calibrationFinishMarginRel;
 	
-	/*
+	/**
 	 * Delay between calibration cycles
 	 */
 	private final static int MIN_DELAY = 1;
 	private final static int DEFAULT_DELAY = 250;
 	private int calibrationDelay;
 	
-	/*
+	/**
 	 * Calibrated colors are managed in this class
 	 */
 	ColorManager colorManager = new ColorManager();
 	
 	
-	/*
+	/**
 	 * All args constructor
 	 */
 	public Calibrator(int calibrationCycles, int calibrationDelay, double calibrationFinishMarginAbs, 
@@ -65,17 +65,17 @@ public class Calibrator {
 		this(DEFAULT_CYCLES, DEFAULT_DELAY, DEFAULT_FINISH_ABS, DEFAULT_FINISH_REL);
 	}
 	
-	/*
+	/**
 	 * Method used to check if a given value is higher or equels
 	 * a provided minimum value
 	 * if value is lower, default value will be returned
-	 * @Param: int value
+	 * @param: int value
 	 * 		 		value to be checked
 	 * 		   int limit
 	 * 				min value that value will be checked against
 	 * 		   int defaultValue
 	 * 				default value in case value is lower than minimum
-	 * @Return int
+	 * @return int
 	 * 		   value or default value will be returned
 	 */
 	private int higherOrEqualMin(int value, int limit, int defaultValue) {
@@ -86,13 +86,13 @@ public class Calibrator {
 		}
 	}
 	
-    /*
+    /**
      * A scan is made of the surface below the scanners
      * Add RGB values (int[]) of a color sensor to a surface color map
-     * @Param: ColorSensor[]
+     * @param: ColorSensor[]
      * 				array containing the colorsensors
      * 				which require calibration
-     * @Return: int[][]
+     * @return: int[][]
      * 				first array with size == amount of sensors
      * 				second array with size == 3
      * 					values for: Red Green Blue
@@ -103,7 +103,7 @@ public class Calibrator {
 							colorSensor.getName());
 	}
 	
-	/*
+	/**
 	 * Method takes average of multiple calibration cycle scans
 	 * @param: ColorSensor
 	 * 				values are processed per colorsensor
@@ -121,7 +121,7 @@ public class Calibrator {
 		return sum;
 	}
 
-	/*
+	/**
 	 * sum every color in array for number of calibration cycles
 	 * @Param: int[] array
 	 * 				array of length 3 containing RGB values
@@ -145,11 +145,11 @@ public class Calibrator {
 		return array;
 	}
 	
-	/*
+	/**
 	 * divide every color in array by number of calibration cycles
-	 * @Param: int[]
+	 * @param: int[]
 	 * 				array with summed RGB values
-	 * @Return: int[]
+	 * @return: int[]
 	 * 				array with average RGB values per calibration cycle
 	 */
 	private int[] calcRgbArrayAverageUsingCalibrationCycles(int[] array) {
