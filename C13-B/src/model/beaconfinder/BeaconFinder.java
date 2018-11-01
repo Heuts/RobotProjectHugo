@@ -10,7 +10,7 @@ import lejos.utility.Delay;
 import utility.Lcd;
 import utility.TouchSensor;
 
-public class RobotBeaconFinder {
+public class BeaconFinder {
 	
 	// Declare the motors in use for movement by the programme
 	private EV3LargeRegulatedMotor motorL, motorR;
@@ -23,7 +23,7 @@ public class RobotBeaconFinder {
 	float[] sample;
 	
 	// Declare a cannon object to use.
-	RobotCannon cannon; 
+	Cannon cannon; 
 	
 	/* 
 	 * The motors are not equally powerful
@@ -34,7 +34,7 @@ public class RobotBeaconFinder {
     
     
     // Setup and start of programme
-    public RobotBeaconFinder(Launcher launcher) {
+    public BeaconFinder(Launcher launcher) {
     	/*
     	 * Retrieve the sensor and motor slots from the launcher
     	 */
@@ -91,7 +91,7 @@ public class RobotBeaconFinder {
     	 * If target is NOT destroyed, or the button is NOT pressed
     	 * Continue the loop in perpetuity
     	*/
-    	while (!targetDestroyed || (Button.ESCAPE.isUp() && !targetDestroyed)) {
+    	while (!targetDestroyed || !Button.ESCAPE.isUp()) {
     		// Orange heart beat when in search mode
     		Button.LEDPattern(9); 
     		// Move the robot forward for x seconds, the x is determined in milliseconds
@@ -226,7 +226,7 @@ public class RobotBeaconFinder {
 					Sound.beepSequenceUp();
 					
 					// Determine how often the cannon should fire a missile
-					int shootAmount = 1;
+					int shootAmount = 3;
 					
 					// Fire the cannon the allotted amount
 					for (int shotsFired = 0; shotsFired < shootAmount; shotsFired++) {

@@ -24,7 +24,7 @@ public class Launcher {
     	setPorts(motorL, motorR, motorCn, IRSensor, touchSensor);
     	
     	// Run an instance of locating and approaching the beacon
-    	new RobotBeaconFinder(this);
+    	new BeaconFinder(this);
     	closePorts();
 	}
 	
@@ -66,8 +66,8 @@ public class Launcher {
     	return IRSensor;
     }
     
-    RobotCannon getCannon() {
-    	return new RobotCannon(motorCn);
+    Cannon getCannon() {
+    	return new Cannon(motorCn);
     }
 
 }

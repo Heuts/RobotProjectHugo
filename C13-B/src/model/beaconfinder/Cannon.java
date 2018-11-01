@@ -2,11 +2,11 @@ package model.beaconfinder;
 
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
 
-public class RobotCannon {
+public class Cannon {
 	
 	EV3MediumRegulatedMotor cannon;
 	
-	public RobotCannon(EV3MediumRegulatedMotor cannon) {
+	public Cannon(EV3MediumRegulatedMotor cannon) {
         this.cannon = cannon;
 	}
     
