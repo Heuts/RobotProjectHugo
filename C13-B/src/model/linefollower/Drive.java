@@ -49,7 +49,7 @@ public class Drive {
 	
 	void followLine() {
     	
-		int power = 45;
+		int power = 40;
 		
 		boolean running = false;
 		Stopwatch stopwatch = new Stopwatch();
