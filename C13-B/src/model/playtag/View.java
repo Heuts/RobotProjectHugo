@@ -1,11 +1,10 @@
 package model.playtag;
 
 import lejos.hardware.Button;
-import lejos.hardware.Sound;
 import lejos.utility.Delay;
 import utility.Lcd;
 
-public class View {
+public class View extends model.View{
 	private static final String TITLE = "Play Tag";
 
 	public static void userInterface() {
@@ -14,15 +13,6 @@ public class View {
 		Lcd.print(4, "Press any button");
 		Lcd.print(5, "to start");
 		Button.waitForAnyPress();
-	}
-
-	public static void alertUp() {
-		Button.LEDPattern(4);
-		Sound.beepSequenceUp();
-	}
-
-	public static void alertDown() {
-		Sound.beepSequence();
 	}
 
 	public static void shutdown() {

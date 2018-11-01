@@ -2,13 +2,10 @@ package model.playtag;
 
 import utility.Lcd;
 import utility.TouchSensor;
-import lejos.hardware.Brick;
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
-import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
-import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3IRSensor;
 import lejos.hardware.sensor.SensorMode;
 import lejos.utility.Delay;
@@ -39,7 +36,6 @@ public class PlayTag {
 	final int DETECT_SPEED = 750;
 	boolean tagged = false;
 
-	Brick brick;
 
 	/*
 	 * dit is de constructor, hier worden de poorten geinitieerd en gaat het

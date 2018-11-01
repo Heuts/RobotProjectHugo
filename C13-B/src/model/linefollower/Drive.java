@@ -9,28 +9,31 @@ import utility.Stopwatch;
 
 public class Drive {
 	
-	/*
-	 * The bot has a left and right track with each one motor
+	/**
+	 * The bot has a left and right track with each one motor.
+	 * The linefollower does this with unregulated motors.
 	 */
-    private UnregulatedMotor motorL, motorR;
+	private UnregulatedMotor motorL, motorR;
     
-    /*
-     * The bot drives on two color sensors, left and right
+    /**
+     * The bot drives on two color sensors, left and right.
      */
     private ColorSensor colorSensorL, colorSensorR;
     
-    /*
-     * colorFinish is an array which consists of two arrays
-     * 		first array with size == amount of sensors
-     * 		second array with size == 3
-     * 			values for: Red Green Blue
+    /**
+     * ColorFinish is an array with R G B values from the finishline.
+     * We have two ranges, a max and min range.
+     * These are the calibrated finish RGB values adjusted with a margin
+     * to increase the range of the finish color. When scanning for the
+     * finish, we will see whether the values are in between the min and
+     * max ranges.
      */
-//    private int[][] colorFinish;
     private int[] colorFinishMax, colorFinishMin;
     private Calibrator calibrator;
     
-    /*
-     * absolute RGB value per sensor
+    /**
+     * Absolute RGB value per sensor used for driving
+     * 
      */
     private int colorBackgroundCumulativeL, colorBackgroundCumulativeR;
 	
@@ -62,7 +65,7 @@ public class Drive {
 	    	int positionR = calibrator.calculateCumulRgbValue(RgbPositionR);
 	    	
 	    	if(isFinish(RgbPositionL, RgbPositionR)) {
-	    		View.alert();
+	    		View.alertUp();
 	    		if(running) {
 	    			stopwatch.stop();
 	    			break;
