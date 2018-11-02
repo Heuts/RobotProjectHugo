@@ -19,18 +19,18 @@ public class BeaconFinder {
 	private TouchSensor touch;
 	private EV3IRSensor sensorIR;
 	
-	SensorMode seek;
-	float[] sample;
+	private SensorMode seek;
+	private float[] sample;
 	
 	// Declare a cannon object to use.
-	Cannon cannon; 
+	private Cannon cannon; 
 	
 	/* 
 	 * The motors are not equally powerful
 	 * Therefore motorA is running at a slower maximum speed.
 	 */
-    final int COMPENSATED_MAX_SPEED = 686;
-    final int MAX_SPEED = 700;
+    private final int COMPENSATED_MAX_SPEED = 686;
+    private final int MAX_SPEED = 700;
     
     
     // Setup and start of programme
