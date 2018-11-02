@@ -227,7 +227,7 @@ public class Launcher {
 	 * returns calibrator object, used to access rgb calculation methods
 	 * @return calibrator
 	 */
-	public Calibrator getCalibrator() {
+	Calibrator getCalibrator() {
 		return calibrator;
 	}
 }

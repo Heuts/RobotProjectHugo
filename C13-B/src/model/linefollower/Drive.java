@@ -18,9 +18,32 @@ import utility.Stopwatch;
 public class Drive {
 	
 	/**
-	 * The speed of the unregulated motors
+	 * The speed of the unregulated motors.
 	 */
 	private final static int POWER = 40;
+	
+	/**
+	 * Max speed of the bot with unregulated motors
+	 */
+	private final static int MAX_SPEED = 120;
+	
+	/**
+	 * Threshold used to determine the background is white enough to 
+	 * drive straight forward.
+	 */
+	private final static int STRAIGHT_FORWARD_THRESHOLD = 100;
+	
+	/**
+	 * Correction of the speed on a straight line.
+	 */
+	private final static int STRAIGHT_LINE_BOOST = 10;
+	
+	/**
+	 * Turning threshold to follow black line.
+	 * When the cumul value of the R G B colors goes below this
+	 * threshold, a strong turn is needed.
+	 */
+	private final static int BLACK_TRESHOLD = 140;
 	
 	/**
 	 * The bot has a left and right track with each one motor.
@@ -86,7 +109,7 @@ public class Drive {
 		/*
 		 * start driving forward full speed until start is reached
 		 */
-		driveForward(POWER+80);
+		driveForward(MAX_SPEED);
 
 		while (Button.ESCAPE.isUp()) {
 			
@@ -147,31 +170,58 @@ public class Drive {
 	    		turnLeftLight(POWER);
 	    	}
 	    	
-	    	
-	    	while(positionL < 140 && Button.ESCAPE.isUp()) {
+	    	/*
+	    	 * When the preset black treshold is exceeded, trigger a hard turn.
+	    	 * We loop this turn until the threshold is back in the clear.
+	    	 * During the loop, new scans are made. 
+	    	 */
+	    	while(positionL < BLACK_TRESHOLD && Button.ESCAPE.isUp()) {
 	    		positionL = calibrator.calculateCumulRgbValue(detectPosition(colorSensorL));
 	    		turnLeftHard(POWER);
 	    	}
 	    	
+	    	/*
+	    	 * Keep track of current position with stopwatch and printing results to the screen
+	    	 */
 	    	positionR = calibrator.calculateCumulRgbValue(detectPosition(colorSensorR));
 	    	View.printRgbPosition('R', RgbPositionR[0], RgbPositionR[1], RgbPositionR[2]);
 	    	
+	    	/*
+	    	 * Check if cumulvalue of right scanner is lower than calibrated value.
+	    	 * Black is low value, white is high value.
+	    	 * A lower current position indicates more black values.
+	    	 * If the right sensors sees black, the bot turns right to get back in the white.
+	    	 */
 	    	if(positionR < colorBackgroundCumulativeR) {
 	    		turnRightLight(POWER);
 	    	}
 
-	    	while(positionR < 140  && Button.ESCAPE.isUp()) {
+	    	/*
+	    	 * When the preset black treshold is exceeded, trigger a hard turn.
+	    	 * We loop this turn until the threshold is back in the clear.
+	    	 * During the loop, new scans are made. 
+	    	 */
+	    	while(positionR < BLACK_TRESHOLD  && Button.ESCAPE.isUp()) {
 	    		positionR = calibrator.calculateCumulRgbValue(detectPosition(colorSensorR));
 	    		turnRightHard(POWER);
 	    	}
 	    	
-	    	if(positionL > 100 && positionR > 100) {
-	    		driveForward(POWER+10);
+	    	/*
+	    	 * When both sensors exceed this thresholds, they are both far enough from the line
+	    	 * to drive straight forward. An acceleration boost is given as will.
+	    	 */
+	    	if(positionL > STRAIGHT_FORWARD_THRESHOLD && positionR > STRAIGHT_FORWARD_THRESHOLD) {
+	    		driveForward(POWER+STRAIGHT_LINE_BOOST);
 	    	}
 		}
 		
     	//stop motors -- is buiten de while loop die stopt bij escape
 		
+		/*
+		 * When the driving algorithm is exited, the motors are stopped and the
+		 * stopwatch results are printed.
+		 * Delays are used to give the sensors enough time to properly shutdown.
+		 */
 		Delay.msDelay(250);
 		stopMotor();
 		Delay.msDelay(250);
@@ -179,6 +229,13 @@ public class Drive {
  
     }
 	
+	/**
+	 * Triggers a sharp turn to the right by driving forwards with right track
+	 * and backwards with left track.
+	 * We drive forward faster than backward to avoid getting stuck on very sharp corners,
+	 * this keeps pushing the bot forward.
+	 * @param power
+	 */
 	private void turnRightHard(int power) {
 		motorL.forward();
 		motorL.setPower(power+20+20); //sterker om te zwakkere motor te corrigeren
