@@ -7,7 +7,20 @@ import lejos.utility.Delay;
 import utility.ColorSensor;
 import utility.Stopwatch;
 
+
+/**
+ * 
+ * @author Tom
+ * Drive class is used for the actual driving of the robot
+ * this class contains the algorithm to follow the line and
+ * supporting driving methods to go forward, turn and scan current position.
+ */
 public class Drive {
+	
+	/**
+	 * The speed of the unregulated motors
+	 */
+	private final static int POWER = 40;
 	
 	/**
 	 * The bot has a left and right track with each one motor.
@@ -37,6 +50,12 @@ public class Drive {
      */
     private int colorBackgroundCumulativeL, colorBackgroundCumulativeR;
 	
+    
+    /**
+     * Drive constructor initializes the motors, colorsensors,
+     * calibrated finish values and calibrator object obtained from the launcher. 
+     * @param launcher
+     */
 	public Drive(Launcher launcher) {
 		this.motorL = launcher.getMotor('L');
 		this.motorR = launcher.getMotor('R');
@@ -47,23 +66,52 @@ public class Drive {
 		this.calibrator = launcher.getCalibrator();
 	}
 	
+	/**
+	 * algorithm to follow the line 
+	 */
 	void followLine() {
     	
-		int power = 40;
-		
+		/*
+		 * variable to indicate start of lap
+		 * starts false and is turned true when finish line
+		 * is passed for first time
+		 */
 		boolean running = false;
+		
+		/*
+		 * stopwatch to keep track of time while driving
+		 */
 		Stopwatch stopwatch = new Stopwatch();
 		
-		driveForward(power+80); //start met rechtdoor rijden tot de start
+		/*
+		 * start driving forward full speed until start is reached
+		 */
+		driveForward(POWER+80);
 
 		while (Button.ESCAPE.isUp()) {
 			
+			/*
+			 * Scan position of both sensors in R G B.
+			 * This needs to be R G B as finish line is checked first in R G B
+			 * driving will be with cumul value
+			 */
 	    	int[] RgbPositionL = detectPosition(colorSensorL);
 	    	int[] RgbPositionR = detectPosition(colorSensorR);
 	    	
+	    	/*
+	    	 * get cumul value of scanned R G B positions, used for the actual
+	    	 * following of the black line.
+	    	 */
 	    	int positionL = calibrator.calculateCumulRgbValue(RgbPositionL);
 	    	int positionR = calibrator.calculateCumulRgbValue(RgbPositionR);
 	    	
+	    	/*
+	    	 * At the start of every loop, scan dor the finish line.
+	    	 * When the finish line is passed for the first time, stopwatch
+	    	 * is started and running is set to true.
+	    	 * When the finish line is passed for the second time, stopwatch
+	    	 * is turned off and followline loop is terminated.
+	    	 */
 	    	if(isFinish(RgbPositionL, RgbPositionR)) {
 	    		View.alertUp();
 	    		if(running) {
@@ -75,34 +123,50 @@ public class Drive {
 	    		}
 	    	}
 	    	
+	    	/*
+	    	 * If the lap has not started yet, skip blackline detection and
+	    	 * keep scanning for finish in methods above.
+	    	 * Bot keeps driving full speed ahead.
+	    	 */
 	    	if(!running) continue;
 	    	
+	    	
+	    	/*
+	    	 * Keep track of current position with stopwatch and printing results to the screen
+	    	 */
 	    	View.printElapsedTime(stopwatch);
 	    	View.printRgbPosition('L', RgbPositionL[0], RgbPositionL[1], RgbPositionL[2]);
 	    	
+	    	/*
+	    	 * Check if cumulvalue of left scanner is lower than calibrated value.
+	    	 * Black is low value, white is high value.
+	    	 * A lower current position indicates more black values.
+	    	 * If the left sensors sees black, the bot turns left to get back in the white.
+	    	 */
 	    	if(positionL < colorBackgroundCumulativeL) {
-	    		turnLeftLight(power);
+	    		turnLeftLight(POWER);
 	    	}
+	    	
 	    	
 	    	while(positionL < 140 && Button.ESCAPE.isUp()) {
 	    		positionL = calibrator.calculateCumulRgbValue(detectPosition(colorSensorL));
-	    		turnLeftHard(power);
+	    		turnLeftHard(POWER);
 	    	}
 	    	
 	    	positionR = calibrator.calculateCumulRgbValue(detectPosition(colorSensorR));
 	    	View.printRgbPosition('R', RgbPositionR[0], RgbPositionR[1], RgbPositionR[2]);
 	    	
 	    	if(positionR < colorBackgroundCumulativeR) {
-	    		turnRightLight(power);
+	    		turnRightLight(POWER);
 	    	}
 
 	    	while(positionR < 140  && Button.ESCAPE.isUp()) {
 	    		positionR = calibrator.calculateCumulRgbValue(detectPosition(colorSensorR));
-	    		turnRightHard(power);
+	    		turnRightHard(POWER);
 	    	}
 	    	
 	    	if(positionL > 100 && positionR > 100) {
-	    		driveForward(power+10);
+	    		driveForward(POWER+10);
 	    	}
 		}
 		
