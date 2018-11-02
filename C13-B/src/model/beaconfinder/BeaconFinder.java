@@ -80,7 +80,7 @@ public class BeaconFinder {
 	 * Main programme
 	 * Loops until the target is found and has been shot
 	 */
-    public void basicProgramme() {	
+    private void basicProgramme() {	
     	/* 
     	 * Declare and initialise boolean for argument
     	 * (Target is NOT destroyed)
@@ -108,7 +108,7 @@ public class BeaconFinder {
     }
     
     // 
-    public boolean followBeacon() {
+    private boolean followBeacon() {
     	/* 
     	 * Declare and intialise whether the target is destroyed
     	 * The target is initialised as NOT destroyed
@@ -230,7 +230,7 @@ public class BeaconFinder {
 					
 					// Fire the cannon the allotted amount
 					for (int shotsFired = 0; shotsFired < shootAmount; shotsFired++) {
-						cannon.CannonFire();
+						cannon.cannonFire();
 					}
 					
 					/* 
@@ -257,7 +257,7 @@ public class BeaconFinder {
 	 * Move robot backwards with maximum speed for a set amount of
 	 * time in milliseconds (determined when the method is called)
     */
-	public void moveBackward(int time) {
+	private void moveBackward(int time) {
 	        motorL.setSpeed(COMPENSATED_MAX_SPEED);
 	        motorR.setSpeed(MAX_SPEED);
 			motorL.backward();
@@ -269,7 +269,7 @@ public class BeaconFinder {
 	 * Move robot forwards with maximum speed for a set amount of
 	 * time in milliseconds (determined when the method is called)
 	 */
-	public void moveForward(int time) {
+	private void moveForward(int time) {
 		
 		/* 
 		 * Declare and initialise that the
@@ -326,7 +326,7 @@ public class BeaconFinder {
 	 *  Positive (1 to 100) will turn the robot to the left
 	 *  Negative (-1 to -100) will turn the robot to the right
 	 */
-	public void rotate(int degrees) {
+	private void rotate(int degrees) {
 			
 			// Clear LCD
 			Lcd.clear();
@@ -391,7 +391,7 @@ public class BeaconFinder {
 			}
 		}
 			
-		public void searchRotate() {
+		private void searchRotate() {
 			Sound.beepSequenceUp();
 
 			// Declare the timer and initialise its start to 0
@@ -459,7 +459,7 @@ public class BeaconFinder {
 		}
 	
 	// Stop the robot and wait for new instructions
-	public void robotStop() {
+	private void robotStop() {
 			// Clear LCD
 			Lcd.clear();
 					
@@ -472,7 +472,7 @@ public class BeaconFinder {
 	 * When bumper is touched, drive backwards, make a left/right turn
 	 * then drive forwards and have the opposite corresponding left/right turn
 	*/
-	public void robotBumper() {
+	private void robotBumper() {
 		
 		// Declare and initialise the degrees of the left and right turn
 		int left = 20;

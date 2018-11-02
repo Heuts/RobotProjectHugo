@@ -10,7 +10,7 @@ public class Cannon {
         this.cannon = cannon;
 	}
     
-    public void CannonFire() {
+    public void cannonFire() {
         fire();
 		resetMotor();
     }
