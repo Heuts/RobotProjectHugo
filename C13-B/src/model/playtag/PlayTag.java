@@ -31,14 +31,19 @@ public class PlayTag {
 	SensorMode infraredSensor;
 	float[] infraredSensorSample;
 
+	/*
+	 * ik heb verschillende snelheden ingesteld voor de verschillende methodes,
+	 * zodat het voor ons makkelijker was om kirov te "taggen" (omdat hij niet te
+	 * snel weg rijdt in de avoidBeacon methode) en dat het makkelijker voor kirov
+	 * zou zijn om ons te tikken (omdat hij sneller is in deze chaseBeacon methode)
+	 */
 	final int CHASE_SPEED = 1000;
 	final int AVOID_SPEED = 500;
 	final int DETECT_SPEED = 750;
 	boolean tagged = false;
 
-
 	/*
-	 * dit is de constructor, hier worden de poorten geinitieerd en gaat het
+	 * dit is de constructor, hier worden de poorten meegegeven en gaat het
 	 * programma lopen dmv het aanroepen van de methodes
 	 */
 	public PlayTag(Port leftMotorPort, Port rightMotorPort, Port touchSensorBumperPort, Port touchSensorBackPort,
@@ -53,6 +58,12 @@ public class PlayTag {
 		infraredSensor = Infrared.getSeekMode();
 		infraredSensorSample = new float[infraredSensor.sampleSize()];
 
+		/*
+		 * zodra de beacon is gevonden gaat het programma in de while loop waarin hij
+		 * eerst probeert in de avoidBeacon methode te gaan, en vervolgens in de
+		 * chaseBeacon te gaan, nadat Kirov "tagged" is. Vervolgens als Kirov zelf weer
+		 * getikt wordt, wordt de loop gebroken en sluit het programma
+		 */
 		View.userInterface();
 		detectBeacon();
 		while (Button.ESCAPE.isUp()) {
@@ -67,6 +78,14 @@ public class PlayTag {
 		View.shutdown();
 	}
 
+	/*
+	 * Deze methode is de methode waarin wordt "gezocht" naar de beacon. Hij doet
+	 * dit door rond te draaien op één plek totdat hij een signaal opvangt met de
+	 * infrarood sensor. Deze sensor staat uit zichzelf al op 0, dus ik heb hem zo
+	 * geprogrammeerd dat hij alleen reageert op het signaal als de sensor waarden
+	 * van 0> of <0 detecteert. Zodra het beacon is gevonden wordt de boolean
+	 * beaconFound op true gezet en wordt de loop gebroken
+	 */
 	public boolean detectBeacon() {
 		Lcd.clear();
 		Lcd.print(4, "Now in detectBeacon");
@@ -93,6 +112,13 @@ public class PlayTag {
 		return beaconFound;
 	}
 
+	/*
+	 * in deze methode wordt het beacon ontweken met de AVOID_SPEED snelheid(traag).
+	 * Ik heb ervoor gezorgd dat hij ook af en toe vooruit rijdt (als de
+	 * infraroodsensor waarden tussen de -10 en 10 zitten), zodra de touchsensor
+	 * achterop kirov wordt aangeraakt gaat de boolean tagged op true en breekt de
+	 * loop
+	 */
 	public void avoidBeacon() {
 		Lcd.clear();
 		Lcd.print(4, "Now in avoidBeacon");
@@ -125,6 +151,14 @@ public class PlayTag {
 		}
 	}
 
+	/*
+	 * door het breken van de loop in de chase methode gaat de boolean tagged op
+	 * true en geraakt het programma in de chaseBeacon methode hieronderin. Deze
+	 * methode is voornamelijk gelijk aan de bovenstaande alleen is het gedrag van
+	 * de motors gespiegeld ook is de range van infrarood sensor waarin hij
+	 * rechtdoor rijdt kleiner, zodat hij meer preciezer is om de andere beacon op
+	 * het einde te tikken
+	 */
 	public void chaseBeacon() {
 		Lcd.clear();
 		Lcd.print(4, "Now in chaseBeacon");
