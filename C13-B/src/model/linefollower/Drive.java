@@ -230,19 +230,25 @@ public class Drive {
     }
 	
 	/**
-	 * Triggers a sharp turn to the right by driving forwards with right track
-	 * and backwards with left track.
+	 * Triggers a sharp turn to the right by driving forwards with left track
+	 * and backwards with right track.
 	 * We drive forward faster than backward to avoid getting stuck on very sharp corners,
 	 * this keeps pushing the bot forward.
 	 * @param power
 	 */
 	private void turnRightHard(int power) {
 		motorL.forward();
-		motorL.setPower(power+20+20); //sterker om te zwakkere motor te corrigeren
+		motorL.setPower(power+20+20);
 		motorR.backward();
-		motorR.setPower(power+20); //sterker om zwakkere motor te corrigeren
+		motorR.setPower(power+20);
 	}
 
+	
+	/**
+	 * Light correction to the right by increasing power of left track
+	 * and driving backwards slowly with right track.
+	 * @param power
+	 */
 	private void turnRightLight(int power) {
 		motorL.forward();
 		motorL.setPower(power + 10);
@@ -250,6 +256,13 @@ public class Drive {
 		motorR.setPower(power/2);
 	}
 
+	/**
+	 * Triggers a sharp turn to the left by driving forwards with right track
+	 * and backwards with left track.
+	 * We drive forward faster than backward to avoid getting stuck on very sharp corners,
+	 * this keeps pushing the bot forward.
+	 * @param power
+	 */
 	private void turnLeftHard(int power) {
 		motorR.forward();
 		motorR.setPower(power+20+15);
@@ -257,6 +270,11 @@ public class Drive {
 		motorL.setPower(power+20);
 	}
 
+	/**
+	 * Light correction to the left by increasing power of right track
+	 * and driving backwards slowly with left track.
+	 * @param power
+	 */
 	private void turnLeftLight(int power) {
 		motorR.forward();
 		motorR.setPower(power);
@@ -264,6 +282,10 @@ public class Drive {
 		motorL.setPower(power/2);
 	}
 
+	/**
+	 * Set both motors forward and drive with equal power
+	 * @param power
+	 */
 	private void driveForward(int power) {
 		motorL.forward();
 		motorR.forward();
@@ -271,6 +293,9 @@ public class Drive {
 		motorR.setPower(power);
 	}
 	
+	/**
+	 * Stop both motors
+	 */
 	private void stopMotor() {
 	   	motorL.stop();
     	motorR.stop();
